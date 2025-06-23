@@ -279,86 +279,15 @@
             </div>
           </div>
 
-          <!-- Create New Locked Savings -->
-          <div class="bg-gray-800 rounded-2xl p-6 lg:p-8 shadow-sm mb-8">
+          <!-- Select a Savings Plan -->
+          <div id="plans-container" class="bg-gray-800 rounded-2xl p-6 lg:p-8 shadow-sm mb-8">
             <div class="border-b border-gray-700 pb-4 mb-6">
-              <h3 class="text-xl font-semibold text-white">Create New Locked Savings</h3>
-              <p class="text-gray-400 mt-1 text-sm">Start earning guaranteed returns on your investment</p>
+              <h3 class="text-xl font-semibold text-white">Select a Savings Plan</h3>
+              <p class="text-gray-400 mt-1 text-sm">Choose a plan that fits your financial goals.</p>
             </div>
-            
-            <form id="new-fd-form">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-white mb-2">Deposit Amount</label>
-                  <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-400">$</span>
-                    </div>
-                    <input type="number" name="amount" min="1000" class="pl-8 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="0.00">
-                  </div>
-                  <p class="text-xs text-gray-400 mt-1">Minimum deposit: $1,000.00</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-white mb-2">Tenure</label>
-                  <select name="tenure" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                    <option value="3">3 Months (3.5% per month)</option>
-                    <option value="6">6 Months (4.2% per month)</option>
-                    <option value="12">1 Year (5.1% per month)</option>
-                    <option value="24">2 Years (5.8% per month)</option>
-                    <option value="36">3 Years (6.5% per month)</option>
-                    <option value="60">5 Years (7.2% per month)</option>
-                  </select>
-                </div>
-
-                <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-white mb-2">Payment Method</label>
-                  <select name="payment-method" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                    <option value="wallet">Wallet Balance (Loading...)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="mt-6 p-4 sm:p-6 bg-gray-700 rounded-xl">
-                <h4 class="font-medium mb-4 text-white">Locked Savings Summary</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-2">
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Principal Amount:</span>
-                      <span class="text-sm font-medium text-white" id="summary-principal">$0.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Interest Rate:</span>
-                      <span class="text-sm font-medium text-white" id="summary-rate">5.1% p.a.</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Tenure:</span>
-                      <span class="text-sm font-medium text-white" id="summary-tenure">1 Year</span>
-                    </div>
-                  </div>
-                  <div class="space-y-2">
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Interest Earned:</span>
-                      <span class="text-sm font-medium text-white" id="summary-interest">$0.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Maturity Date:</span>
-                      <span class="text-sm font-medium text-white" id="summary-maturity">16 May 2025</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-sm text-gray-400">Maturity Amount:</span>
-                      <span class="text-sm font-medium text-white" id="summary-maturity-amount">$0.00</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-6 flex justify-end">
-                <button type="submit" class="bg-blue-600 text-white py-3 px-8 rounded-md hover:bg-blue-700 transition-colors font-medium">
-                  Create Locked Savings
-                </button>
-              </div>
-            </form>
+            <div id="plans-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Savings plan cards will be inserted here by JavaScript -->
+            </div>
           </div>
 
           <!-- Active Locked Savings -->
@@ -377,7 +306,7 @@
               <table class="w-full hidden lg:table">
                 <thead>
                   <tr class="text-left text-xs uppercase text-gray-500 border-b border-gray-700">
-                    <th class="px-6 py-3 font-semibold tracking-wider">FD Number</th>
+                    <th class="px-6 py-3 font-semibold tracking-wider">Plan / ID</th>
                     <th class="px-6 py-3 font-semibold tracking-wider">Principal</th>
                     <th class="px-6 py-3 font-semibold tracking-wider">Interest Rate</th>
                     <th class="px-6 py-3 font-semibold tracking-wider">Start Date</th>
@@ -389,19 +318,97 @@
                 <tbody id="active-deposits-tbody">
                   <tr>
                     <td colspan="7" class="px-6 py-8 text-center text-gray-400">
-                      Loading Locked Savingss...
+                      Loading Locked Savings...
                     </td>
                   </tr>
                 </tbody>
               </table>
               <div id="active-deposits-cards" class="lg:hidden space-y-4">
                   <div class="px-6 py-8 text-center text-gray-400">
-                      Loading Locked Savingss...
+                      Loading Locked Savings...
                   </div>
               </div>
             </div>
           </div>
+
+          <!-- Historical Savings -->
+          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden mt-8">
+            <div class="p-6 lg:p-8 flex items-center justify-between border-b border-gray-700">
+              <div>
+                <h3 class="text-xl font-semibold text-white">Historical Savings</h3>
+                <p class="text-gray-400 mt-1 text-sm">Your past and concluded savings plans</p>
+              </div>
+            </div>
+            <div class="overflow-x-auto" id="historical-deposits-container">
+              <table class="w-full hidden lg:table">
+                <thead>
+                  <tr class="text-left text-xs uppercase text-gray-500 border-b border-gray-700">
+                    <th class="px-6 py-3 font-semibold tracking-wider">FD Number</th>
+                    <th class="px-6 py-3 font-semibold tracking-wider">Principal</th>
+                    <th class="px-6 py-3 font-semibold tracking-wider">Maturity Date</th>
+                    <th class="px-6 py-3 font-semibold tracking-wider">Status</th>
+                    <th class="px-6 py-3 font-semibold tracking-wider">Amount Paid</th>
+                  </tr>
+                </thead>
+                <tbody id="historical-deposits-tbody">
+                  <!-- Historical data will be populated here -->
+                </tbody>
+              </table>
+              <div id="historical-deposits-cards" class="lg:hidden space-y-4 p-4">
+                  <!-- Mobile historical data will be populated here -->
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Savings Modal -->
+  <div id="create-saving-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden border border-gray-700">
+      <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+        <h3 id="modal-plan-name" class="text-xl font-bold text-white">Create Locked Saving</h3>
+        <button id="close-create-saving-modal" type="button" class="text-gray-400 hover:text-white p-2 -m-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <form id="create-saving-form" novalidate>
+          <input type="hidden" id="modal-plan-id" name="plan_id">
+          <div class="mb-4 p-4 bg-gray-900/50 rounded-lg space-y-2">
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Duration:</span>
+                  <span id="modal-plan-duration" class="font-medium text-white">-</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Weekly Interest:</span>
+                  <span id="modal-plan-interest" class="font-medium text-green-400">-</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Investment Range:</span>
+                  <span id="modal-plan-range" class="font-medium text-white">-</span>
+              </div>
+          </div>
+
+          <div>
+              <label for="modal-amount" class="block text-sm font-medium text-white mb-2">Investment Amount</label>
+              <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-400">$</span>
+                  </div>
+                  <input type="number" id="modal-amount" name="amount" class="pl-8 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="0.00" required>
+              </div>
+              <p id="modal-amount-error" class="text-xs text-red-400 mt-1 h-3"></p>
+          </div>
+
+          <div class="mt-6">
+              <button type="submit" id="confirm-create-saving" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium disabled:bg-blue-800 disabled:cursor-not-allowed">
+                  Confirm & Create Saving
+              </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -548,9 +555,18 @@
               <span id="info-fd-maturity-date" class="text-sm font-medium text-white">-</span>
             </div>
             <div class="border-t border-gray-600 my-2"></div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-400">Interest Earned to Date:</span>
+              <span id="info-fd-interest-earned" class="text-sm font-medium text-white">-</span>
+            </div>
             <div class="flex justify-between items-center">
-              <span class="text-sm text-red-400">Penalty:</span>
-              <span class="text-sm font-medium text-red-400">5.5% on earned interest</span>
+              <span class="text-sm text-red-400">Penalty (10% of Interest):</span>
+              <span id="info-fd-penalty" class="text-sm font-medium text-red-400">-</span>
+            </div>
+            <div class="border-t border-gray-600 my-2"></div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-bold text-white">Final Payout Amount:</span>
+              <span id="info-fd-final-payout" class="text-sm font-bold text-white">-</span>
             </div>
           </div>
           <p class="text-xs text-gray-400 text-center mb-6">
@@ -603,5 +619,8 @@
       initializeLogoutFeature('logout-button', null); // No specific cache key for this page
     });
   </script>
+
+  <script type="module" src="/src/js/locked-savings-view.js"></script>
+  <script type="module" src="/src/js/locked-savings-action.js"></script>
 </body>
 </html>
