@@ -44,6 +44,16 @@
       display: none;
     }
 
+    .skeleton-pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      background-color: #374151; /* gray-700 */
+    }
+    @keyframes pulse {
+      50% {
+        opacity: .5;
+      }
+    }
+
     @media (max-width: 640px) {
       html {
         font-size: 14px;
@@ -236,46 +246,82 @@
 
           <!-- Portfolio Summary -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-8">
+            <!-- Total Principal Card -->
             <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+              <div id="total-principal-content" class="hidden">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400">Total Principal</p>
+                    <div class="text-2xl font-semibold text-white" id="total-principal-value">$0.00</div>
+                  </div>
                 </div>
-                <div class="flex-1">
-                  <p class="text-sm text-gray-400">Total Principal</p>
-                  <div class="text-2xl font-semibold text-white hidden" id="total-principal-value">$0.00</div>
-                  <div class="animate-pulse bg-gray-700 h-8 w-32 rounded" id="total-principal-skeleton"></div>
-                </div>
+                <p class="text-xs text-gray-400">Total invested amount</p>
               </div>
-              <p class="text-xs text-gray-400">Total invested amount</p>
+              <div id="total-principal-skeleton">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 skeleton-pulse rounded-lg"></div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400 h-5"></p>
+                    <div class="skeleton-pulse h-8 w-36 rounded-md mt-1"></div>
+                  </div>
+                </div>
+                <div class="skeleton-pulse h-4 w-24 rounded-md"></div>
+              </div>
             </div>
 
+            <!-- Interest Earned Card -->
             <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-green-600"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <div id="interest-earned-content" class="hidden">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-green-600"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400">Interest Earned</p>
+                    <div class="text-2xl font-semibold text-white" id="interest-earned-value">$0.00</div>
+                  </div>
                 </div>
-                <div class="flex-1">
-                  <p class="text-sm text-gray-400">Interest Earned</p>
-                  <div class="text-2xl font-semibold text-white hidden" id="interest-earned-value">$0.00</div>
-                  <div class="animate-pulse bg-gray-700 h-8 w-32 rounded" id="interest-earned-skeleton"></div>
-                </div>
+                <p class="text-xs text-gray-400">Total interest earned</p>
               </div>
-              <p class="text-xs text-gray-400">Total interest earned</p>
+              <div id="interest-earned-skeleton">
+                 <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 skeleton-pulse rounded-lg"></div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400 h-5"></p>
+                    <div class="skeleton-pulse h-8 w-32 rounded-md mt-1"></div>
+                  </div>
+                </div>
+                <div class="skeleton-pulse h-4 w-28 rounded-md"></div>
+              </div>
             </div>
 
+            <!-- Active Deposits Card -->
             <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm">
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-purple-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+              <div id="active-deposits-content" class="hidden">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-purple-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400">Active Deposits</p>
+                    <div class="text-2xl font-semibold text-white" id="active-deposits-value">0</div>
+                  </div>
                 </div>
-                <div class="flex-1">
-                  <p class="text-sm text-gray-400">Active Deposits</p>
-                  <div class="text-2xl font-semibold text-white hidden" id="active-deposits-value">0</div>
-                  <div class="animate-pulse bg-gray-700 h-8 w-32 rounded" id="active-deposits-skeleton"></div>
-                </div>
+                <p class="text-xs text-gray-400">Number of active deposits</p>
               </div>
-              <p class="text-xs text-gray-400">Number of active deposits</p>
+              <div id="active-deposits-skeleton">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 skeleton-pulse rounded-lg"></div>
+                  <div class="flex-1">
+                    <p class="text-sm text-gray-400 h-5"></p>
+                    <div class="skeleton-pulse h-8 w-24 rounded-md mt-1"></div>
+                  </div>
+                </div>
+                <div class="skeleton-pulse h-4 w-32 rounded-md"></div>
+              </div>
             </div>
           </div>
 

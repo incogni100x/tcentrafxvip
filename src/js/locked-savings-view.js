@@ -60,20 +60,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const interestEl = document.getElementById('interest-earned-value');
         const activeCountEl = document.getElementById('active-deposits-value');
 
+        // Helper to toggle visibility
+        const show = (el) => el.classList.remove('hidden');
+        const hide = (el) => el.classList.add('hidden');
+
         if (principalEl) {
             principalEl.textContent = formatCurrency(data.total_principal);
-            document.getElementById('total-principal-skeleton').classList.add('hidden');
-            principalEl.classList.remove('hidden');
+            show(document.getElementById('total-principal-content'));
+            hide(document.getElementById('total-principal-skeleton'));
         }
         if (interestEl) {
             interestEl.textContent = formatCurrency(data.total_interest_earned);
-            document.getElementById('interest-earned-skeleton').classList.add('hidden');
-            interestEl.classList.remove('hidden');
+            show(document.getElementById('interest-earned-content'));
+            hide(document.getElementById('interest-earned-skeleton'));
         }
         if (activeCountEl) {
             activeCountEl.textContent = data.active_deposits_count;
-            document.getElementById('active-deposits-skeleton').classList.add('hidden');
-            activeCountEl.classList.remove('hidden');
+            show(document.getElementById('active-deposits-content'));
+            hide(document.getElementById('active-deposits-skeleton'));
         }
     }
 
