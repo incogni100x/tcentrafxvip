@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Rocket - Transactions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Add Supabase before any module scripts -->
+   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gray: {
+              900: '#111827',
+            },
+            blue: {
+              400: '#60a5fa',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom styles that might not be in Tailwind */
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      html {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  
+  <!-- Mobile Sidebar -->
+  <div id="mobile-sidebar" class="fixed inset-y-0 left-0 w-64 bg-gray-800 z-50 lg:hidden transform -translate-x-full transition-transform duration-300">
+    <div class="h-full flex flex-col">
+      <!-- Logo -->
+      <div class="p-6">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+          <span class="text-lg font-bold text-white whitespace-nowrap">CT Rocket</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex-1 px-4 overflow-y-auto scrollbar-hide">
+        <div class="space-y-8">
+          <div>
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">General</h3>
+            <nav class="space-y-2">
+              <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                <span class="text-sm">Overview</span>
+              </a>
+              <a href="deposit.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span class="text-sm">Deposit</span>
+              </a>
+              <a href="buy-crypto.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2"/><path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21"/></svg>
+                <span class="text-sm">Buy Crypto</span>
+              </a>
+              <a href="locked-savings.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M19 5c-1.5 0-2.8 1-3.4 2.3C14.5 5.4 13.2 4 11.5 4c-1.7 0-3.2 1.4-3.5 3.2-1.4-.4-2.8.4-3.4 1.8"/><path d="m19 12-1.5-1.5a2.4 2.4 0 0 0-3.4 0L12 12.6V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3.4c0-1.1-.9-2-2-2Z"/><path d="M4 17.2V11a2 2 0 0 1 2-2h2"/><path d="M2 9.5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2"/><path d="M10 17v1"/><path d="m16 9.3-1.8 1.8c-.8.8-2 .8-2.8 0L9.6 9.3"/></svg>
+                <span class="text-sm">Locked Savings</span>
+              </a>
+              <a href="withdrawal.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <span class="text-sm">Withdrawal</span>
+              </a>
+              <a href="transaction-history.html" class="flex items-center gap-3 px-3 py-2.5 text-blue-400 bg-gray-700 rounded-lg border-l-4 border-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                <span class="font-medium text-sm">Transactions</span>
+              </a>
+            </nav>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">Other</h3>
+            <nav class="space-y-2">
+              <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="4"/><path d="M4.22 18.22a8 8 0 0 1 15.56 0"/></svg>
+                <span class="text-sm">Profile</span>
+              </a>
+              <a href="https://www.elitemf.net/contact-us" target="_blank" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <span class="text-sm">Help & Support</span>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Out -->
+      <div class="p-4">
+        <button id="logout-button-mobile" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg w-full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+          <span class="text-sm">Log Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex">
+    <!-- Desktop Sidebar -->
+    <div class="hidden lg:block w-64 bg-gray-800 border-r border-gray-700 h-screen sticky top-0">
+      <div class="h-full flex flex-col">
+        <!-- Logo -->
+        <div class="p-6">
+          <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            <span class="text-lg font-bold text-white whitespace-nowrap">CT Rocket</span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex-1 px-4 overflow-y-auto scrollbar-hide">
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">General</h3>
+              <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                  <span class="text-sm">Overview</span>
+                </a>
+                <a href="deposit.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  <span class="text-sm">Deposit</span>
+                </a>
+                <a href="buy-crypto.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2"/><path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21"/></svg>
+                  <span class="text-sm">Buy Crypto</span>
+                </a>
+                <a href="locked-savings.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M19 5c-1.5 0-2.8 1-3.4 2.3C14.5 5.4 13.2 4 11.5 4c-1.7 0-3.2 1.4-3.5 3.2-1.4-.4-2.8.4-3.4 1.8"/><path d="m19 12-1.5-1.5a2.4 2.4 0 0 0-3.4 0L12 12.6V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3.4c0-1.1-.9-2-2-2Z"/><path d="M4 17.2V11a2 2 0 0 1 2-2h2"/><path d="M2 9.5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2"/><path d="M10 17v1"/><path d="m16 9.3-1.8 1.8c-.8.8-2 .8-2.8 0L9.6 9.3"/></svg>
+                  <span class="text-sm">Locked Savings</span>
+                </a>
+                <a href="withdrawal.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  <span class="text-sm">Withdrawal</span>
+                </a>
+                <a href="transaction-history.html" class="flex items-center gap-3 px-3 py-2.5 text-blue-400 bg-gray-700 rounded-lg border-l-4 border-blue-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                  <span class="font-medium text-sm">Transactions</span>
+                </a>
+              </nav>
+            </div>
+
+            <div>
+              <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">Other</h3>
+              <nav class="space-y-2">
+                <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="4"/><path d="M4.22 18.22a8 8 0 0 1 15.56 0"/></svg>
+                  <span class="text-sm">Profile</span>
+                </a>
+                <a href="https://www.elitemf.net/contact-us" target="_blank" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <span class="text-sm">Help & Support</span>
+                </a>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <!-- Log Out -->
+        <div class="p-4">
+          <button id="logout-button-desktop" class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-700 rounded-lg w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+            <span class="text-sm">Log Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen">
+      <!-- Header -->
+      <div class="bg-gray-800 px-4 sm:px-6 lg:px-8 py-4 lg:py-6 border-b border-gray-700 sticky top-0 z-30">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="lg:hidden h-12 w-12 flex items-center justify-center text-gray-400 hover:bg-gray-700 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+
+            <div>
+              <h1 class="text-xl sm:text-2xl font-bold text-white">Transaction History</h1>
+              <p class="text-gray-300 mt-1 text-sm sm:text-base hidden sm:block">
+                View and manage all your transactions
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 sm:gap-4">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <span class="text-blue-600 font-semibold text-xs sm:text-sm uppercase" id="user-initials">EM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-900 overflow-y-auto">
+        <div class="max-w-6xl mx-auto">
+          <!-- Back Button -->
+          <div class="mb-6">
+            <a href="dashboard.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              <span class="text-sm font-medium">Back to Dashboard</span>
+            </a>
+          </div>
+
+          <!-- Filters -->
+          <div class="bg-gray-800 rounded-2xl p-6 lg:p-8 shadow-sm mb-8">
+            <div class="border-b border-gray-700 pb-4 mb-6">
+              <h3 class="text-xl font-bold text-white">Filter Transactions</h3>
+              <p class="text-gray-400 mt-1">Search and filter your transaction history</p>
+            </div>
+            
+            <form class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
+                <div class="md:col-span-5">
+                  <label class="block text-sm font-medium text-white mb-2">Date Range</label>
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="relative w-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                      <input type="date" name="date-from" id="date-from" class="pl-10 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                    </div>
+                    <div class="flex items-center justify-center">
+                      <span class="text-gray-400 px-2">to</span>
+                    </div>
+                    <div class="relative w-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                      <input type="date" name="date-to" id="date-to" class="pl-10 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="md:col-span-3">
+                  <label class="block text-sm font-medium text-white mb-2">Type</label>
+                  <div class="relative">
+                    <select name="type" id="type-select" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                      <option value="">All Types</option>
+                      <option value="deposit">Deposit</option>
+                      <option value="withdrawal">Withdrawal</option>
+                      <option value="mutual-fund">Mutual Fund</option>
+                      <option value="fixed-deposit">Fixed Deposit</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+
+                <div class="md:col-span-4">
+                  <label class="block text-sm font-medium text-white mb-2">Status</label>
+                  <div class="relative">
+                    <select name="status" id="status-select" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                      <option value="">All Status</option>
+                      <option value="success">Success</option>
+                      <option value="pending">Pending</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
+                <div class="relative flex-1 max-w-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input type="text" class="pl-10 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="Search transactions...">
+                </div>
+                <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white py-3 px-8 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                  Apply Filters
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Transaction Table -->
+          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+            <div class="p-6 lg:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-700">
+              <div>
+                <h3 class="text-xl font-bold text-white">All Transactions</h3>
+                <p class="text-gray-400 mt-1">Complete history of your account activity</p>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-400">
+                <span>Showing</span>
+                <span class="text-white font-medium">1-10</span>
+                <span>of</span>
+                <span class="text-white font-medium">247</span>
+                <span>transactions</span>
+              </div>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="hidden lg:block overflow-x-auto">
+              <table class="w-full text-white">
+                <thead>
+                  <tr class="text-left text-xs text-gray-400 border-b border-gray-700">
+                    <th class="px-6 py-4 font-medium">Transaction ID</th>
+                    <th class="px-6 py-4 font-medium">Type</th>
+                    <th class="px-6 py-4 font-medium">Method</th>
+                    <th class="px-6 py-4 font-medium">Date</th>
+                    <th class="px-6 py-4 font-medium">Status</th>
+                    <th class="px-6 py-4 font-medium">Amount</th>
+                    <th class="px-6 py-4 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-tbody-desktop">
+                  <!-- Sample transaction rows -->
+                  <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition-colors">
+                    <td class="px-6 py-4">
+                      <div class="font-medium text-white">TXN-2024-001</div>
+                      <div class="text-xs text-gray-400">Reference ID</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        </div>
+                        <span class="text-white">Deposit</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-300">Bank Transfer</td>
+                    <td class="px-6 py-4">
+                      <div class="text-white">Dec 15, 2024</div>
+                      <div class="text-xs text-gray-400">2:30 PM</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Success
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-white font-medium">+$1,500.00</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                  
+                  <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition-colors">
+                    <td class="px-6 py-4">
+                      <div class="font-medium text-white">TXN-2024-002</div>
+                      <div class="text-xs text-gray-400">Reference ID</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <span class="text-white">Mutual Fund</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-300">Investment</td>
+                    <td class="px-6 py-4">
+                      <div class="text-white">Dec 14, 2024</div>
+                      <div class="text-xs text-gray-400">10:15 AM</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Pending
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-white font-medium">-$500.00</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition-colors">
+                    <td class="px-6 py-4">
+                      <div class="font-medium text-white">TXN-2024-003</div>
+                      <div class="text-xs text-gray-400">Reference ID</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        </div>
+                        <span class="text-white">Withdrawal</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-300">Cryptocurrency</td>
+                    <td class="px-6 py-4">
+                      <div class="text-white">Dec 13, 2024</div>
+                      <div class="text-xs text-gray-400">4:45 PM</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Success
+                      </span>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="text-white font-medium">-$750.00</div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                  <!-- More rows can be added here -->
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Mobile Cards -->
+            <div id="transactions-cards" class="lg:hidden space-y-4 p-4">
+                <!-- Card 1 -->
+                <div class="bg-gray-700 rounded-lg p-4">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-white text-base">Deposit</div>
+                        <div class="text-xs text-gray-400">TXN-2024-001</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-semibold text-green-400">+$1,500.00</div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Success
+                        </span>
+                    </div>
+                  </div>
+                  <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div>
+                      <div class="text-xs text-gray-400">Method</div>
+                      <div class="text-sm text-white font-medium">Bank Transfer</div>
+                    </div>
+                    <div>
+                      <div class="text-xs text-gray-400">Date</div>
+                      <div class="text-sm text-white font-medium">Dec 15, 2024</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-gray-700 rounded-lg p-4">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      </div>
+                      <div>
+                        <div class="font-semibold text-white text-base">Mutual Fund</div>
+                        <div class="text-xs text-gray-400">TXN-2024-002</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-semibold text-white">-$500.00</div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          Pending
+                        </span>
+                    </div>
+                  </div>
+                  <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div>
+                      <div class="text-xs text-gray-400">Method</div>
+                      <div class="text-sm text-white font-medium">Investment</div>
+                    </div>
+                    <div>
+                      <div class="text-xs text-gray-400">Date</div>
+                      <div class="text-sm text-white font-medium">Dec 14, 2024</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Add more cards as needed -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-6 flex flex-col sm:flex-row items-center justify-between border-t border-gray-700 gap-4">
+              <div class="text-sm text-gray-400">
+                Showing <span class="text-white font-medium">1</span> to <span class="text-white font-medium">10</span> of <span class="text-white font-medium">247</span> results
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-2 text-sm border border-gray-600 text-gray-400 rounded-md hover:bg-gray-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                  Previous
+                </button>
+                <button class="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                  1
+                </button>
+                <button class="px-3 py-2 text-sm border border-gray-600 text-gray-400 rounded-md hover:bg-gray-700 hover:text-white transition-colors">
+                  2
+                </button>
+                <span class="px-2 text-gray-400">...</span>
+                <button class="px-3 py-2 text-sm border border-gray-600 text-gray-400 rounded-md hover:bg-gray-700 hover:text-white transition-colors">
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mobile sidebar functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() {
+      mobileSidebar.classList.remove('-translate-x-full');
+      sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeSidebar() {
+      mobileSidebar.classList.add('-translate-x-full');
+      sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    mobileMenuBtn.addEventListener('click', openSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // Close sidebar on window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        closeSidebar();
+      }
+    });
+  </script>
+
+  <script type="module">
+    import { initializeLogoutFeature } from './src/js/logout.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeLogoutFeature('logout-button-desktop', 'logout-button-mobile');
+    });
+  </script>
+</body>
+</html>

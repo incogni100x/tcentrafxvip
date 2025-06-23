@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Rocket - Create Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gray: {
+              900: '#111827',
+            },
+            blue: {
+              400: '#60a5fa',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    @media (max-width: 640px) {
+      html {
+        font-size: 14px;
+      }
+    }
+    .input-group {
+        position: relative;
+    }
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+    .form-input {
+        padding-left: 3rem;
+    }
+    .otp-input {
+      width: 3rem; height: 3.5rem; text-align: center; font-size: 1.25rem;
+      font-weight: 600; border: 1px solid #4b5563; background-color: #374151;
+      color: white; border-radius: 0.5rem; transition: all 0.2s ease-in-out;
+    }
+    .otp-input:focus {
+      outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    }
+    .step-indicator {
+      transition: all 0.3s ease-in-out;
+    }
+  </style>
+  <script type="module" src="/src/js/register.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-lg">
+      <!-- Logo -->
+      <div class="flex justify-center mb-8">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+          <span class="text-2xl font-bold text-white">CT Rocket</span>
+        </div>
+      </div>
+
+      <!-- Registration Card -->
+      <div class="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-white mb-2">Create an Account</h2>
+          <p class="text-gray-400">Join us and start your journey</p>
+        </div>
+
+        <!-- Step Indicators -->
+        <div class="flex justify-between items-center mb-8">
+          <div class="flex flex-col items-center step-indicator" data-step="1">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold text-sm">1</div>
+            <p class="text-xs mt-2 font-medium text-blue-400">Details</p>
+          </div>
+          <div class="flex-1 h-0.5 bg-gray-600 step-indicator" data-step-line="1"></div>
+          <div class="flex flex-col items-center step-indicator text-gray-500" data-step="2">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 font-bold text-sm">2</div>
+            <p class="text-xs mt-2 font-medium">Verification</p>
+          </div>
+          <div class="flex-1 h-0.5 bg-gray-700 step-indicator" data-step-line="2"></div>
+          <div class="flex flex-col items-center step-indicator text-gray-500" data-step="3">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 font-bold text-sm">3</div>
+            <p class="text-xs mt-2 font-medium">Referral</p>
+          </div>
+          <div class="flex-1 h-0.5 bg-gray-700 step-indicator" data-step-line="3"></div>
+          <div class="flex flex-col items-center step-indicator text-gray-500" data-step="4">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 font-bold text-sm">4</div>
+            <p class="text-xs mt-2 font-medium">Documents</p>
+          </div>
+          <div class="flex-1 h-0.5 bg-gray-700 step-indicator" data-step-line="4"></div>
+          <div class="flex flex-col items-center step-indicator text-gray-500" data-step="5">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-gray-400 font-bold text-sm">5</div>
+            <p class="text-xs mt-2 font-medium">Complete</p>
+          </div>
+        </div>
+
+        <!-- Step 1: Account Details -->
+        <div id="step-1" class="step-content">
+          <form id="details-form" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="first_name" class="block text-sm font-medium text-gray-300 mb-2">First Name</label>
+                <input type="text" id="first_name" name="first_name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="John">
+              </div>
+              <div>
+                <label for="last_name" class="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
+                <input type="text" id="last_name" name="last_name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Doe">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                <input type="email" id="email" name="email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="you@example.com">
+              </div>
+              <div>
+                <label for="phone_number" class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                <input type="tel" id="phone_number" name="phone_number" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="+1 (555) 123-4567">
+              </div>
+            </div>
+            <div class="relative">
+              <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <input type="password" id="password" name="password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 pr-12 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="••••••••">
+              <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 pt-7 text-gray-400 hover:text-white">
+                <svg id="eye-open" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="eye-closed" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+            <div class="relative">
+              <label for="confirm_password" class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+              <input type="password" id="confirm_password" name="confirm_password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 pr-12 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="••••••••">
+              <button type="button" id="toggle-confirm-password" class="absolute inset-y-0 right-0 flex items-center pr-3 pt-7 text-gray-400 hover:text-white">
+                <svg id="confirm-eye-open" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="confirm-eye-closed" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+            <div class="flex items-start">
+              <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 mt-0.5 bg-gray-700 border-gray-600 text-blue-600 rounded focus:ring-blue-500">
+              <label for="terms" class="ml-3 text-sm text-gray-400">I agree to the <a href="#" class="font-medium text-blue-400 hover:underline">Terms and Conditions</a>.</label>
+            </div>
+            <button type="submit" id="details-submit-btn" class="w-full mt-6 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <span class="btn-text">Continue</span>
+              <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: Verification -->
+        <div id="step-2" class="step-content hidden">
+          <div class="text-center">
+            <div class="inline-block p-3 bg-blue-500/10 rounded-full mb-4">
+                <div class="p-2 bg-blue-500/20 rounded-full">
+                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+            </div>
+            <h3 class="text-xl font-bold text-white">Verify Your Email</h3>
+            <p class="text-gray-400 mt-2 mb-4">Enter the verification code sent to <br><strong id="verification-email" class="font-medium text-white">you@example.com</strong></p>
+          </div>
+          <form id="otp-form" class="space-y-6">
+            <div class="flex justify-center gap-3">
+              <input type="text" class="otp-input" maxlength="1" data-index="0">
+              <input type="text" class="otp-input" maxlength="1" data-index="1">
+              <input type="text" class="otp-input" maxlength="1" data-index="2">
+              <input type="text" class="otp-input" maxlength="1" data-index="3">
+              <input type="text" class="otp-input" maxlength="1" data-index="4">
+              <input type="text" class="otp-input" maxlength="1" data-index="5">
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" id="otp-submit-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+                <span class="btn-text">Verify Account</span>
+                <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="text-center">
+              <button type="button" id="resend-otp" class="text-sm text-blue-400 hover:underline">Resend Code</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 3: Referral -->
+        <div id="step-3" class="step-content hidden">
+          <div class="text-center">
+            <h3 class="text-xl font-bold text-white">Referral Code</h3>
+            <p class="text-gray-400 mt-2 mb-6">If you have a referral code, please enter it below.</p>
+          </div>
+          <form id="referral-form" class="space-y-6">
+            <div>
+              <label for="referral_code" class="block text-sm font-medium text-gray-300 mb-2">Referral Code</label>
+              <input type="text" id="referral_code" name="referral_code" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Enter referral code">
+              <p id="referral-error" class="text-red-400 text-sm mt-2 hidden"></p>
+            </div>
+            <button type="submit" id="referral-submit-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <span class="btn-text">Submit Code</span>
+              <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+              </button>
+            </form>
+          </div>
+
+        <!-- Step 4: Documents -->
+        <div id="step-4" class="step-content hidden">
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold text-white">Upload Documents</h3>
+                <p class="text-gray-400 mt-2">For KYC verification, please upload two documents.</p>
+            </div>
+            <form id="documents-form" class="space-y-6">
+                <div>
+                    <label for="document1" class="block text-sm font-medium text-gray-300 mb-2">Document 1 (e.g., Passport, ID Card)</label>
+                    <input type="file" id="document1" name="document1" required class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="document2" class="block text-sm font-medium text-gray-300 mb-2">Document 2 (e.g., Proof of Address)</label>
+                    <input type="file" id="document2" name="document2" required class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                  <label for="country" class="block text-sm font-medium text-gray-300 mb-2">Country</label>
+                  <select id="country" name="country" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                    <option value="">Select your country</option>
+                    <option value="USA">United States</option>
+                    <option value="CAN">Canada</option>
+                    <option value="GBR">United Kingdom</option>
+                    <option value="AUS">Australia</option>
+                    <!-- Add more countries as needed -->
+                  </select>
+                </div>
+                <button type="submit" id="documents-submit-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+                  <span class="btn-text">Submit for Verification</span>
+                  <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 5: Complete -->
+        <div id="step-5" class="step-content hidden">
+          <div class="text-center">
+            <div class="inline-block p-3 bg-green-500/10 rounded-full mb-4">
+                <div class="p-2 bg-green-500/20 rounded-full">
+                    <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+              </div>
+            <h3 class="text-xl font-bold text-white">Account Created!</h3>
+            <p class="text-gray-400 mt-2 mb-6">Your account has been successfully created. You will be redirected to the dashboard shortly.</p>
+        </div>
+      </div>
+        
+        <div class="mt-8 text-center">
+          <p class="text-gray-400">
+            Already have an account? 
+            <a href="login.html" class="font-medium text-blue-400 hover:text-blue-300">Log In</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

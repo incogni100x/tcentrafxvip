@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Rocket - Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gray: {
+              900: '#111827',
+            },
+            blue: {
+              400: '#60a5fa',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    @media (max-width: 640px) {
+      html {
+        font-size: 14px;
+      }
+    }
+    .input-group {
+        position: relative;
+    }
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+    .otp-input {
+      width: 3rem; height: 3.5rem; text-align: center; font-size: 1.25rem;
+      font-weight: 600; border: 1px solid #4b5563; background-color: #374151;
+      color: white; border-radius: 0.5rem; transition: all 0.2s ease-in-out;
+    }
+    .otp-input:focus {
+      outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <script type="module" src="/src/js/login.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+      <div class="flex justify-center mb-8">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+          <span class="text-2xl font-bold text-white">CT Rocket</span>
+        </div>
+      </div>
+      
+      <div class="bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+          <p class="text-gray-400">Sign in to continue to your account</p>
+        </div>
+        
+        <!-- Step 1: Email & Password Form -->
+        <div id="email-step">
+          <form id="login-form" class="space-y-6">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+              <div class="input-group">
+                <svg class="input-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                <input type="email" id="email" name="email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="you@example.com">
+              </div>
+            </div>
+            
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                <a href="forgot-password.html" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">Forgot?</a>
+              </div>
+              <div class="input-group">
+                <svg class="input-icon w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="password" name="password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-12 pr-12 focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="••••••••">
+                <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+                  <svg id="eye-open" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg id="eye-closed" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" id="login-submit-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <span class="btn-text">Sign In</span>
+              <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: OTP Form -->
+        <div id="otp-step" class="hidden">
+           <div class="text-center">
+            <div class="inline-block p-3 bg-blue-500/10 rounded-full mb-4">
+                <div class="p-2 bg-blue-500/20 rounded-full">
+                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+            </div>
+            <h3 class="text-xl font-bold text-white">Check Your Email</h3>
+            <p class="text-gray-400 mt-2 mb-4">Enter the verification code sent to <br><strong id="verification-email" class="font-medium text-white">you@example.com</strong></p>
+          </div>
+          <form id="otp-form" class="space-y-6">
+            <div class="flex justify-center gap-3">
+                  <input type="text" class="otp-input" maxlength="1" data-index="0">
+                  <input type="text" class="otp-input" maxlength="1" data-index="1">
+                  <input type="text" class="otp-input" maxlength="1" data-index="2">
+                  <input type="text" class="otp-input" maxlength="1" data-index="3">
+                  <input type="text" class="otp-input" maxlength="1" data-index="4">
+                  <input type="text" class="otp-input" maxlength="1" data-index="5">
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" id="otp-submit-btn" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex justify-center items-center disabled:bg-blue-400 disabled:cursor-not-allowed">
+                <span class="btn-text">Verify & Sign In</span>
+                <svg class="animate-spin h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+              </div>
+            <div class="text-center">
+               <button type="button" id="back-to-email" class="text-sm text-blue-400 hover:underline">Back to email</button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="mt-8 text-center">
+          <p class="text-gray-400">
+            Don't have an account? 
+            <a href="register.html" class="font-medium text-blue-400 hover:text-blue-300">Sign Up</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
