@@ -220,7 +220,7 @@
 
           <div class="flex items-center gap-2 sm:gap-4">
             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <span class="text-blue-600 font-semibold text-xs sm:text-sm uppercase" id="user-initials">EM</span>
+              <span class="text-blue-600 font-semibold text-xs sm:text-sm uppercase" id="user-initials"></span>
             </div>
           </div>
         </div>
@@ -256,9 +256,8 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column -->
-            <div class="lg:col-span-2 space-y-8">
-              <!-- Recent Transactions -->
+            <!-- Recent Transactions -->
+            <div class="lg:col-span-3 space-y-8">
               <div class="bg-gray-800 rounded-2xl p-6 lg:p-8 shadow-sm">
                 <div class="flex items-center justify-between mb-6">
                   <h2 class="text-xl font-semibold text-white">Recent Transactions</h2>
@@ -271,44 +270,54 @@
                     <thead>
                       <tr class="text-left text-xs uppercase text-gray-500 border-b border-gray-700">
                         <th class="px-3 py-3 font-semibold tracking-wider">Type</th>
+                        <th class="px-3 py-3 font-semibold tracking-wider">Details</th>
                         <th class="px-3 py-3 font-semibold tracking-wider">Date</th>
                         <th class="px-3 py-3 font-semibold tracking-wider">Amount</th>
                         <th class="px-3 py-3 font-semibold tracking-wider">Status</th>
                       </tr>
                     </thead>
                     <tbody id="transactions-tbody-desktop">
-                      <!-- Rows will be populated by JS -->
+                      <!-- JS renders rows here -->
                     </tbody>
                   </table>
                 </div>
 
                 <!-- Mobile Cards -->
                 <div id="transactions-cards-mobile" class="lg:hidden space-y-4">
-                  <!-- Cards will be populated by JS -->
+                  <!-- JS renders cards here -->
                 </div>
-              </div>
-            </div>
 
-            <!-- Right Column -->
-            <div class="lg:col-span-1 space-y-8">
-              <!-- Referral Link -->
-              <div class="bg-gray-800 rounded-2xl p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-white mb-4">Referral Link</h3>
-                <p class="text-sm text-gray-400 mb-4">Share this link with your friends to earn bonuses when they sign up and invest.</p>
-                <div class="relative">
-                  <input type="text" id="referral-link" readonly value="https://ctrocket.com/signup?ref=ELITE123" class="w-full bg-gray-700 border-gray-600 rounded-md py-2.5 px-4 text-white pr-10">
-                  <button id="copy-referral-link" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                  </button>
+                <!-- Skeleton Loader -->
+                <div id="recent-transactions-skeleton">
+                  <div class="hidden lg:block">
+                    <table class="w-full">
+                      <tbody class="divide-y divide-gray-700">
+                        <tr class="animate-pulse">
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-20"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-28"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-24"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-16"></div></td>
+                          <td class="px-3 py-4"><div class="h-5 bg-gray-700 rounded-full w-24"></div></td>
+                        </tr>
+                        <tr class="animate-pulse">
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-24"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-32"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-24"></div></td>
+                          <td class="px-3 py-4"><div class="h-4 bg-gray-700 rounded w-20"></div></td>
+                          <td class="px-3 py-4"><div class="h-5 bg-gray-700 rounded-full w-20"></div></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="lg:hidden space-y-4">
+                     <div class="bg-gray-700 rounded-lg p-4 animate-pulse"><div class="flex justify-between items-start mb-3"><div class="flex-grow space-y-2"><div class="h-4 bg-gray-600 rounded w-3/4"></div><div class="h-3 bg-gray-600 rounded w-1/2"></div></div><div class="h-4 bg-gray-600 rounded w-1/4"></div></div><div class="h-6 bg-gray-600 rounded w-1/3 mt-2"></div></div>
+                     <div class="bg-gray-700 rounded-lg p-4 animate-pulse"><div class="flex justify-between items-start mb-3"><div class="flex-grow space-y-2"><div class="h-4 bg-gray-600 rounded w-3/4"></div><div class="h-3 bg-gray-600 rounded w-1/2"></div></div><div class="h-4 bg-gray-600 rounded w-1/4"></div></div><div class="h-6 bg-gray-600 rounded w-1/3 mt-2"></div></div>
+                  </div>
                 </div>
-                <div id="copy-feedback" class="text-xs text-green-400 mt-2 h-4"></div>
-              </div>
 
-              <!-- Recent Notifications -->
-              <div class="bg-gray-800 rounded-2xl p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-white mb-4">Recent Notifications</h3>
-                <div id="notification-list" class="space-y-4 max-h-64 overflow-y-auto scrollbar-hide">
-                  <!-- Notifications will be populated by JS -->
+                <!-- No Results Message -->
+                <div id="no-recent-transactions-message" class="hidden text-center py-10">
+                  <p class="text-gray-400">You have no recent transactions.</p>
                 </div>
               </div>
             </div>
@@ -319,145 +328,37 @@
   </div>
 
 <script>
-// Mock data for transactions and notifications
-const mockTransactions = [
-  { type: 'Deposit', date: '2024-05-15', amount: 2000.00, currency: 'USD', status: 'Completed' },
-  { type: 'Withdrawal', date: '2024-05-14', amount: 500.00, currency: 'USD', status: 'Pending' },
-  { type: 'Buy Crypto', date: '2024-05-12', amount: 1500.00, currency: 'USD', status: 'Completed' },
-  { type: 'Locked Savings', date: '2024-05-10', amount: 5000.00, currency: 'USD', status: 'Active' },
-  { type: 'Bonus', date: '2024-05-09', amount: 100.00, currency: 'USD', status: 'Completed' },
-];
-
-const mockNotifications = [
-  { title: "Withdrawal Processed", message: "Your withdrawal of $500 has been processed.", time: "2 hours ago" },
-  { title: "New Login", message: "A new login to your account was detected.", time: "1 day ago" },
-  { title: "Interest Payment", message: "You received an interest payment of $12.50.", time: "3 days ago" },
-];
-
-function populateTransactions() {
-  const desktopTbody = document.getElementById('transactions-tbody-desktop');
-  const mobileContainer = document.getElementById('transactions-cards-mobile');
-
-  if (desktopTbody) desktopTbody.innerHTML = '';
-  if (mobileContainer) mobileContainer.innerHTML = '';
-
-  mockTransactions.forEach(tx => {
-    const statusClass = tx.status === 'Completed' || tx.status === 'Active' ? 'text-green-400' : (tx.status === 'Pending' ? 'text-yellow-400' : 'text-red-400');
-    const statusIcon = tx.status === 'Completed' || tx.status === 'Active' ? `<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>` : (tx.status === 'Pending' ? `<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>` : `<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`);
-    
-    // Desktop row
-    if (desktopTbody) {
-      const row = document.createElement('tr');
-      row.className = 'border-b border-gray-700/50 hover:bg-gray-700/50';
-      row.innerHTML = `
-        <td class="px-3 py-4 text-sm text-white">${tx.type}</td>
-        <td class="px-3 py-4 text-sm text-gray-400">${tx.date}</td>
-        <td class="px-3 py-4 text-sm text-white font-medium">$${tx.amount.toFixed(2)}</td>
-        <td class="px-3 py-4 text-sm">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full ${statusClass.replace('text-', 'bg-').replace('-400', '-500/10')} ${statusClass}">
-            ${statusIcon}
-            ${tx.status}
-          </span>
-        </td>
-      `;
-      desktopTbody.appendChild(row);
-    }
-
-    // Mobile card
-    if (mobileContainer) {
-      const card = document.createElement('div');
-      card.className = 'bg-gray-700 rounded-lg p-4';
-      card.innerHTML = `
-        <div class="flex justify-between items-start mb-3">
-          <div>
-            <div class="font-semibold text-white">${tx.type}</div>
-            <div class="text-xs text-gray-400">${tx.date}</div>
-          </div>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${statusClass.replace('text-', 'bg-').replace('-400', '-500/10')} ${statusClass}">
-            ${statusIcon}
-            ${tx.status}
-          </span>
-        </div>
-        <div class="text-lg font-bold text-white">$${tx.amount.toFixed(2)}</div>
-      `;
-      mobileContainer.appendChild(card);
-    }
-  });
-}
-
-function populateNotifications() {
-  const notificationList = document.getElementById('notification-list');
-  if (!notificationList) return;
-  notificationList.innerHTML = '';
-
-  mockNotifications.forEach(notif => {
-    const item = document.createElement('div');
-    item.className = 'flex items-start gap-3';
-    item.innerHTML = `
-      <div class="w-10 h-10 bg-blue-500/10 rounded-full flex-shrink-0 flex items-center justify-center">
-        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-      </div>
-      <div>
-        <h4 class="text-sm font-medium text-white">${notif.title}</h4>
-        <p class="text-xs text-gray-400">${notif.message}</p>
-        <p class="text-xs text-gray-500 mt-1">${notif.time}</p>
-      </div>
-    `;
-    notificationList.appendChild(item);
-  });
-}
-
 // Mobile sidebar functionality
 const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 const mobileSidebar = document.getElementById('mobile-sidebar');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-function openSidebar() {
-  mobileSidebar.classList.remove('-translate-x-full');
-  sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+if (mobileMenuBtn && mobileSidebar && sidebarOverlay) {
+    function openSidebar() {
+        mobileSidebar.classList.remove('-translate-x-full');
+        sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeSidebar() {
+        mobileSidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    mobileMenuBtn.addEventListener('click', openSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            closeSidebar();
+        }
+    });
 }
-
-function closeSidebar() {
-  mobileSidebar.classList.add('-translate-x-full');
-  sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-}
-
-mobileMenuBtn.addEventListener('click', openSidebar);
-sidebarOverlay.addEventListener('click', closeSidebar);
-
-window.addEventListener('resize', () => {
-  if (window.innerWidth >= 1024) {
-    closeSidebar();
-  }
-});
-
-// Copy referral link
-const copyButton = document.getElementById('copy-referral-link');
-const feedbackDiv = document.getElementById('copy-feedback');
-copyButton.addEventListener('click', () => {
-  const linkInput = document.getElementById('referral-link');
-  navigator.clipboard.writeText(linkInput.value).then(() => {
-    feedbackDiv.textContent = 'Copied!';
-    setTimeout(() => {
-      feedbackDiv.textContent = '';
-    }, 2000);
-  });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  populateTransactions();
-  populateNotifications();
-  // Placeholder for user name/initials logic
-  // e.g., document.getElementById('user-name-placeholder').textContent = 'Satoshi';
-  // e.g., document.getElementById('user-initials').textContent = 'SN';
-});
 </script>
 <script src="./src/js/dashboard-view.js" type="module"></script>
+<script src="./src/js/dashboard-transactions.js" type="module" defer></script>
 <script type="module">
-    import { initializeLogoutFeature } from './src/js/logout.js';
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeLogoutFeature('logout-button-desktop', 'logout-button-mobile');
-    });
+    import { initializeHeader } from './src/js/header.js';
+    document.addEventListener('DOMContentLoaded', initializeHeader);
 </script>
 
 </body>

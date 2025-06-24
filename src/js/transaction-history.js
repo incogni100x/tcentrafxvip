@@ -250,6 +250,17 @@ function applyFilters() {
     renderPage();
 }
 
+/**
+ * Resets all filters and displays all transactions.
+ */
+function resetFilters() {
+    const form = document.getElementById('filter-form');
+    if (form) {
+        form.reset();
+    }
+    applyFilters();
+}
+
 // --- INITIALIZATION --- //
 
 async function initializePage() {
@@ -261,10 +272,17 @@ async function initializePage() {
         filteredTransactions = allTransactions;
         renderPage();
         
-        document.getElementById('filter-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            applyFilters();
-        });
+        const form = document.getElementById('filter-form');
+        if (form) {
+            form.addEventListener('submit', (e) => e.preventDefault());
+
+            const filterControls = ['date-from', 'date-to', 'type-select', 'status-select'];
+            filterControls.forEach(id => {
+                document.getElementById(id)?.addEventListener('input', applyFilters);
+            });
+            
+            document.getElementById('reset-filters-btn')?.addEventListener('click', resetFilters);
+        }
 
     } catch (error) {
         console.error('Error fetching transaction history:', error.message);
