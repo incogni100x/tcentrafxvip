@@ -55,6 +55,10 @@ async function renderRecentTransactions() {
         return;
     }
 
+    // Clear any existing data to prevent duplicates
+    desktopTbody.innerHTML = '';
+    mobileContainer.innerHTML = '';
+
     try {
         const { data, error } = await supabase.functions.invoke('get-transaction-history');
         if (error) throw error;
@@ -132,10 +136,13 @@ async function renderRecentTransactions() {
         }
     }
 }
+
+let hasRendered = false;
 // Listen for auth state changes to ensure we only fetch when logged in.
 supabase.auth.onAuthStateChange((event, session) => {
-    // We only want to fetch data when a session is confirmed.
-    if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+    // We only want to fetch data when a session is confirmed and we haven't rendered yet.
+    if (!hasRendered && session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+        hasRendered = true;
         renderRecentTransactions();
     }
 });
