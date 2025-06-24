@@ -640,13 +640,14 @@
   </script>
 
   <script type="module">
-    import { initializeLogoutFeature } from './src/js/logout.js';
+    import { initializeLogout } from './src/js/logout.js';
+    import './src/js/withdrawal.js';
+    
     document.addEventListener('DOMContentLoaded', () => {
-      initializeLogoutFeature('logout-button', null); // No specific cache key for this page
+      initializeLogout('logout-button-desktop');
+      initializeLogout('logout-button-mobile');
     });
   </script>
 <script src="./src/js/header.js" type="module"></script>
-
-  <script type="module" src="/src/js/withdrawal.js"></script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 import { supabase } from './client.js';
 import { getCurrentUser } from './session.js';
-import { initializeLogoutFeature } from './logout.js';
 import Toastify from 'toastify-js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -59,10 +58,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fullName = user.user_metadata?.full_name || 'User';
     const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
     if (userInitialsEl) userInitialsEl.textContent = initials;
-    
-    // Use a more robust way to find logout buttons
-    initializeLogoutFeature('logout-button-mobile');
-    initializeLogoutFeature('logout-button-desktop');
     
     await loadDepositMethods();
     setupEventListeners();

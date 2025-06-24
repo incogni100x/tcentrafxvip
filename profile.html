@@ -565,11 +565,13 @@
     });
   </script>
   
-  <script src="./src/js/profile-view.js" type="module"></script>
   <script type="module">
-    import { initializeLogoutFeature } from './src/js/logout.js';
+    import { initializeLogout } from '/src/js/logout.js';
+    import '/src/js/profile-view.js';
+
     document.addEventListener('DOMContentLoaded', () => {
-      initializeLogoutFeature('logout-button-desktop', 'logout-button-mobile');
+      initializeLogout('logout-button-desktop');
+      initializeLogout('logout-button-mobile');
     });
   </script>
 </body>

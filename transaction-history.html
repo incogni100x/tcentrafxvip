@@ -318,6 +318,12 @@
 
   <script type="module" src="./src/js/header.js"></script>
   <script type="module" src="./src/js/transaction-history.js"></script>
-
+  <script type="module">
+    import { initializeLogout } from './src/js/logout.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeLogout('logout-button-desktop');
+      initializeLogout('logout-button-mobile');
+    });
+  </script>
 </body>
 </html>

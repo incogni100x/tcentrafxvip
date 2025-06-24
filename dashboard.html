@@ -346,7 +346,16 @@
 <script src="./src/js/header.js" type="module"></script>
 <script src="./src/js/dashboard-view.js" type="module"></script>
 <script src="./src/js/dashboard-transactions.js" type="module"></script>
+<script type="module">
+  import './src/js/dashboard-view.js';
+  import './src/js/dashboard-transactions.js';
+  import { initializeLogout } from './src/js/logout.js';
 
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeLogout('logout-button-desktop');
+    initializeLogout('logout-button-mobile');
+  });
+</script>
 
 </body>
 </html>

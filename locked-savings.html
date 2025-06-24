@@ -30,7 +30,14 @@
   <link rel="stylesheet" href="/src/styles/input.css">
   <!-- Then add your module scripts -->
   <script type="module" src="/src/js/main.js"></script>
-  <script type="module" src="/src/js/logout.js"></script>
+  <script type="module" src="/src/js/locked-savings.js"></script>
+  <script type="module">
+    import { initializeLogout } from './src/js/logout.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeLogout('logout-button-desktop');
+      initializeLogout('logout-button-mobile');
+    });
+  </script>
   <style>
     /* Custom styles that might not be in Tailwind */
     body {
@@ -657,13 +664,7 @@
     });
   </script>
 
-  <script type="module">
-    import { initializeLogoutFeature } from './src/js/logout.js';
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeLogoutFeature('logout-button', null); // No specific cache key for this page
-    });
-  </script>
-<script src="./src/js/header.js" type="module"></script>
+  <script type="module" src="/src/js/header.js"></script>
 
   <script type="module" src="/src/js/locked-savings-view.js"></script>
   <script type="module" src="/src/js/locked-savings-action.js"></script>
