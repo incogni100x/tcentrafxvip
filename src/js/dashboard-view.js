@@ -35,7 +35,7 @@ function renderCryptoValueCard(value) {
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2"/><path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><path d="M9 5v4"/><rect width="4" height="6" x="7" y="9" rx="1"/><path d="M9 15v2"/><path d="M17 3v2"/><rect width="4" height="8" x="15" y="5" rx="1"/><path d="M17 13v3"/><path d="M3 3v16a2 2 0 0 0 2 2h16"/></svg>
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Crypto Value</p>
@@ -52,7 +52,7 @@ function renderLockedSavingsCard(value) {
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-yellow-600"><path d="M19 5c-1.5 0-2.8 1-3.4 2.3C14.5 5.4 13.2 4 11.5 4c-1.7 0-3.2 1.4-3.5 3.2-1.4-.4-2.8.4-3.4 1.8"/><path d="m19 12-1.5-1.5a2.4 2.4 0 0 0-3.4 0L12 12.6V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3.4c0-1.1-.9-2-2-2Z"/><path d="M4 17.2V11a2 2 0 0 1 2-2h2"/><path d="M2 9.5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2"/><path d="M10 17v1"/><path d="m16 9.3-1.8 1.8c-.8.8-2 .8-2.8 0L9.6 9.3"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-yellow-600"><path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"/><path d="M16 10h.01"/><path d="M2 8v1a2 2 0 0 0 2 2h1"/></svg>
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Locked Savings</p>
