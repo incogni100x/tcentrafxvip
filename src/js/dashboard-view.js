@@ -1,5 +1,4 @@
 import { supabase } from './client.js';
-import { getCurrentUser } from './session.js';
 import Toastify from 'toastify-js';
 
 // Helper function to format currency
@@ -81,25 +80,9 @@ function renderTotalBalanceCard(cash, crypto, savings) {
   `;
 }
 
-// --- DATA FETCHING ---
+// --- DATA FETCHING & RENDERING ---
 
-async function fetchDashboardData() {
-  const user = await getCurrentUser();
-  if (!user) {
-    // User not logged in, show error and stop
-    Toastify({
-      text: "Please log in to view your dashboard.",
-      duration: 3000,
-      close: true,
-      gravity: "top",
-      position: "center",
-      style: {
-        background: "linear-gradient(to right, #e74c3c, #c0392b)",
-      }
-    }).showToast();
-    return null;
-  }
-
+async function initializeDashboardView() {
   const { data, error } = await supabase.functions.invoke('get-dashboard-data');
 
   if (error) {
@@ -114,29 +97,30 @@ async function fetchDashboardData() {
         background: "linear-gradient(to right, #e74c3c, #c0392b)",
       }
     }).showToast();
-    return null;
+    
+    // Show error state in cards
+    document.getElementById('cash-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+    document.getElementById('crypto-value-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+    document.getElementById('locked-savings-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+    document.getElementById('total-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+    return;
   }
 
-  return data;
-}
-
-// --- INITIALIZATION ---
-
-document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Fetch the data
-  const data = await fetchDashboardData();
-
-  // 2. Render the actual data if it exists
   if (data) {
     renderCashBalanceCard(data.cash_balance);
     renderCryptoValueCard(data.total_crypto_value);
     renderLockedSavingsCard(data.total_locked_savings);
     renderTotalBalanceCard(data.cash_balance, data.total_crypto_value, data.total_locked_savings);
-  } else {
-    // Optionally, handle the error case visually, though toast is already shown
-    document.getElementById('cash-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('crypto-value-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('locked-savings-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('total-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
   }
+}
+
+// --- INITIALIZATION ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    // We only want to fetch data when a session is confirmed.
+    if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+      initializeDashboardView();
+    }
+  });
 }); 

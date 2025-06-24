@@ -133,5 +133,10 @@ async function renderRecentTransactions() {
     }
 }
 
-// Since this script is deferred, it will run after the DOM is fully parsed.
-renderRecentTransactions();
+// Listen for auth state changes to ensure we only fetch when logged in.
+supabase.auth.onAuthStateChange((event, session) => {
+    // We only want to fetch data when a session is confirmed.
+    if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+        renderRecentTransactions();
+    }
+});
