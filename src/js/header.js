@@ -1,9 +1,11 @@
 import { supabase } from './client.js';
-import { getUserWithProfile, signOut } from './session.js';
+import { getCurrentUser, signOut } from './session.js';
 
 // Update Header UI
-function updateHeaderUI(profile) {
-    if (!profile) {
+async function updateHeaderUI() {
+    const user = await getCurrentUser();
+    
+    if (!user) {
         const path = window.location.pathname.split('/').pop();
         if (path !== '' && path !== 'index.html' && path !== 'signup.html') {
             window.location.href = '/';
@@ -11,33 +13,16 @@ function updateHeaderUI(profile) {
         return;
     }
 
-    let initials = '??';
+    // Get initials from auth metadata (same as deposit.js)
+    const fullName = user.user_metadata?.full_name || 'User';
+    const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
     
-    // Attempt 1: Use first_name and last_name
-    if (typeof profile.first_name === 'string' && profile.first_name.length > 0 && typeof profile.last_name === 'string' && profile.last_name.length > 0) {
-        initials = `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
-    } 
-    // Attempt 2: Use a 'name' or 'full_name' field
-    else {
-        const fullName = profile.name || profile.full_name;
-        if (typeof fullName === 'string' && fullName.length > 0) {
-            const nameParts = fullName.split(' ').filter(Boolean);
-            if (nameParts.length > 1) {
-                initials = `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`.toUpperCase();
-            } else if (nameParts.length === 1) {
-                initials = `${nameParts[0].slice(0, 2)}`.toUpperCase();
-            }
-        } else {
-             console.warn('User profile is incomplete, cannot generate initials.', profile);
-        }
-    }
-
     document.querySelectorAll('#user-initials').forEach(el => {
         el.textContent = initials;
     });
 
-    // Announce that the profile is loaded and ready.
-    const event = new CustomEvent('profile-loaded', { detail: { profile } });
+    // Still fire the event for compatibility with dashboard pages
+    const event = new CustomEvent('profile-loaded', { detail: { user } });
     document.dispatchEvent(event);
 }
 
@@ -80,21 +65,20 @@ function initializeSidebar() {
 }
 
 // Main initialization function
-function initializeHeader() {
+async function initializeHeader() {
     // These are safe to run immediately as they only set up event listeners
     initializeLogoutButtons();
     initializeSidebar();
 
-    // Listen for auth state changes. This will fire once on page load
-    // and correctly handle the timing of post-login session availability.
+    // Get user and update UI immediately
+    await updateHeaderUI();
+    
+    // Also listen for auth state changes for real-time updates
     supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session) {
-            // User is signed in. We can now safely get their profile.
-            const profile = await getUserWithProfile();
-            updateHeaderUI(profile);
-        } else {
-            // User is signed out. Let updateHeaderUI handle redirects.
-            updateHeaderUI(null);
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            await updateHeaderUI();
+        } else if (event === 'SIGNED_OUT') {
+            window.location.href = '/';
         }
     });
 }

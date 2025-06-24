@@ -132,7 +132,6 @@ async function renderRecentTransactions() {
         }
     }
 }
-
 // Listen for auth state changes to ensure we only fetch when logged in.
 supabase.auth.onAuthStateChange((event, session) => {
     // We only want to fetch data when a session is confirmed.

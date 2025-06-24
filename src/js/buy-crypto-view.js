@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { symbol, name } = token;
         const { static_price, interest_rate } = backendData;
         
-        const iconUrl = `assets/icons/crypto/${symbol.toUpperCase()}.svg`;
+        const iconUrl = `/assets/icons/crypto/${symbol.toUpperCase()}.svg`;
         let iconSvg;
         try {
             const response = await fetch(iconUrl);
