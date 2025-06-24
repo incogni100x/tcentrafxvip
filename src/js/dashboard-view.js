@@ -10,23 +10,6 @@ function formatCurrency(value) {
   }).format(value);
 }
 
-// --- RENDER SKELETON FUNCTIONS ---
-
-function renderCardSkeleton(containerId, title) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = `
-    <div class="flex items-center gap-3 mb-3">
-      <div class="skeleton w-10 h-10 rounded-lg shrink-0"></div>
-      <div class="flex-1 space-y-2">
-        <div class="skeleton h-4 w-3/4"></div>
-        <div class="skeleton h-6 w-1/2"></div>
-      </div>
-    </div>
-    <div class="skeleton h-3 w-full"></div>
-  `;
-}
-
 // --- RENDER DATA FUNCTIONS ---
 
 function renderCashBalanceCard(balance) {
@@ -140,16 +123,10 @@ async function fetchDashboardData() {
 // --- INITIALIZATION ---
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Render all skeletons immediately
-  renderCardSkeleton('cash-balance-card');
-  renderCardSkeleton('crypto-value-card');
-  renderCardSkeleton('locked-savings-card');
-  renderCardSkeleton('total-balance-card');
-  
-  // 2. Fetch the data
+  // 1. Fetch the data
   const data = await fetchDashboardData();
 
-  // 3. Render the actual data if it exists
+  // 2. Render the actual data if it exists
   if (data) {
     renderCashBalanceCard(data.cash_balance);
     renderCryptoValueCard(data.total_crypto_value);
