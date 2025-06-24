@@ -3,36 +3,56 @@ import { supabase } from './client.js';
 export async function getUserWithProfile() {
     const cachedProfile = sessionStorage.getItem('userProfile');
     if (cachedProfile) {
-        return JSON.parse(cachedProfile);
+        try {
+            return JSON.parse(cachedProfile);
+        } catch (e) {
+            sessionStorage.removeItem('userProfile');
+        }
     }
 
-    // A user must be logged in to get a profile.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return null;
     }
 
-    try {
-        const { data, error } = await supabase.functions.invoke('get-user-profile');
+    // Retry logic to handle the small delay between user creation in auth
+    // and profile creation in the database via a trigger.
+    for (let i = 0; i < 3; i++) {
+        try {
+            const { data, error, status } = await supabase.functions.invoke('get-user-profile');
 
-        if (error) {
-            throw error;
-        }
+            if (error) {
+                // If we get a real auth error, sign out and redirect immediately.
+                if (status === 401 || status === 403) {
+                    throw new Error('User is not authorized.');
+                }
+                // For other errors, log them but allow a retry.
+                console.warn(`Attempt ${i + 1} to fetch profile failed:`, error.message);
+            }
 
-        if (data && data.profile) {
-            sessionStorage.setItem('userProfile', JSON.stringify(data.profile));
-            return data.profile;
+            // If we get a profile, cache and return it.
+            if (data && data.profile) {
+                sessionStorage.setItem('userProfile', JSON.stringify(data.profile));
+                return data.profile;
+            }
+
+            // If no profile was found yet, wait before retrying.
+            if (i < 2) { // Don't wait after the last attempt.
+                await new Promise(res => setTimeout(res, 500));
+            }
+        } catch (err) {
+            console.error('Critical error fetching user profile:', err.message);
+            await signOut(); // This will clear session storage and sign out from Supabase.
+            window.location.href = '/'; // Force redirect.
+            return null; // Stop execution.
         }
-        return null;
-    } catch (error) {
-        console.error('Error fetching user profile:', error.message);
-        // If the error is an auth error, sign out and redirect.
-        if (error.context?.status === 401 || error.context?.status === 403) {
-            await signOut(); // This will also clear storage
-            window.location.href = '/';
-        }
-        return null;
     }
+
+    console.error('Failed to retrieve user profile after multiple attempts.');
+    // If all retries fail, it's a genuine issue, so sign out.
+    await signOut();
+    window.location.href = '/';
+    return null;
 }
 
 export async function getCurrentUser() {

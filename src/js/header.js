@@ -35,6 +35,10 @@ function updateHeaderUI(profile) {
     document.querySelectorAll('#user-initials').forEach(el => {
         el.textContent = initials;
     });
+
+    // Announce that the profile is loaded and ready.
+    const event = new CustomEvent('profile-loaded', { detail: { profile } });
+    document.dispatchEvent(event);
 }
 
 // Logout functionality

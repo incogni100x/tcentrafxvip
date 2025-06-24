@@ -116,11 +116,11 @@ async function initializeDashboardView() {
 
 // --- INITIALIZATION ---
 
-document.addEventListener('DOMContentLoaded', () => {
-  supabase.auth.onAuthStateChange((event, session) => {
-    // We only want to fetch data when a session is confirmed.
-    if (session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
-      initializeDashboardView();
+let hasInitialized = false;
+// Wait for the auth state to be confirmed before fetching data.
+supabase.auth.onAuthStateChange((event, session) => {
+    if (session && !hasInitialized) {
+        hasInitialized = true;
+        initializeDashboardView();
     }
-  });
 }); 
