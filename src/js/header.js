@@ -1,74 +1,49 @@
 import { supabase } from './client.js';
-
-// Reusable function to get user profile and cache it
-async function getUserProfile() {
-    const cachedProfile = sessionStorage.getItem('userProfile');
-    if (cachedProfile) {
-        return JSON.parse(cachedProfile);
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        window.location.href = '/';
-        return null;
-    }
-
-    try {
-        const { data, error, status } = await supabase.functions.invoke('get-user-profile', {
-            method: 'POST',
-            body: { userId: user.id }
-        });
-
-        if (error) {
-            console.error('Error fetching user profile:', error);
-            if (status === 401 || status === 403) {
-                // Unauthorized, clear session and redirect to login
-                await supabase.auth.signOut();
-                sessionStorage.clear();
-                window.location.href = '/';
-            }
-            return null;
-        }
-
-        if (data && data.profile) {
-            sessionStorage.setItem('userProfile', JSON.stringify(data.profile));
-            return data.profile;
-        }
-
-    } catch (e) {
-        console.error('Exception fetching user profile:', e);
-        return null;
-    }
-}
+import { getUserWithProfile, signOut } from './session.js';
 
 // Update Header UI
 function updateHeaderUI(profile) {
-    if (!profile) return;
-    const { first_name, last_name } = profile;
-
-    if (typeof first_name === 'string' && first_name.length > 0 && typeof last_name === 'string' && last_name.length > 0) {
-        const initials = `${first_name.charAt(0)}${last_name.charAt(0)}`.toUpperCase();
-        document.querySelectorAll('#user-initials').forEach(el => {
-            el.textContent = initials;
-        });
-    } else {
-        console.warn('User profile is incomplete, cannot generate initials.', profile);
-        document.querySelectorAll('#user-initials').forEach(el => {
-            el.textContent = '??';
-        });
+    if (!profile) {
+        const path = window.location.pathname.split('/').pop();
+        if (path !== '' && path !== 'index.html' && path !== 'signup.html') {
+            window.location.href = '/';
+        }
+        return;
     }
+
+    let initials = '??';
+    
+    // Attempt 1: Use first_name and last_name
+    if (typeof profile.first_name === 'string' && profile.first_name.length > 0 && typeof profile.last_name === 'string' && profile.last_name.length > 0) {
+        initials = `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+    } 
+    // Attempt 2: Use a 'name' or 'full_name' field
+    else {
+        const fullName = profile.name || profile.full_name;
+        if (typeof fullName === 'string' && fullName.length > 0) {
+            const nameParts = fullName.split(' ').filter(Boolean);
+            if (nameParts.length > 1) {
+                initials = `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`.toUpperCase();
+            } else if (nameParts.length === 1) {
+                initials = `${nameParts[0].slice(0, 2)}`.toUpperCase();
+            }
+        } else {
+             console.warn('User profile is incomplete, cannot generate initials.', profile);
+        }
+    }
+
+    document.querySelectorAll('#user-initials').forEach(el => {
+        el.textContent = initials;
+    });
 }
 
 // Logout functionality
-async function logout() {
-    await supabase.auth.signOut();
-    sessionStorage.clear();
-    window.location.href = '/';
-}
-
 function initializeLogoutButtons() {
     document.querySelectorAll('#logout-button-desktop, #logout-button-mobile').forEach(button => {
-        button.addEventListener('click', logout);
+        button.addEventListener('click', async () => {
+            await signOut();
+            window.location.href = '/';
+        });
     });
 }
 
@@ -103,22 +78,12 @@ function initializeSidebar() {
 
 // Main initialization function
 async function initializeHeader() {
-    // Populate from cache first for speed
-    const cachedProfile = sessionStorage.getItem('userProfile');
-    if (cachedProfile) {
-        updateHeaderUI(JSON.parse(cachedProfile));
-    }
-    
-    // Then fetch fresh data
-    const profile = await getUserProfile();
-    if (profile) {
-        updateHeaderUI(profile);
-    }
-
+    const profile = await getUserWithProfile();
+    updateHeaderUI(profile);
     initializeLogoutButtons();
     initializeSidebar();
 }
 
 document.addEventListener('DOMContentLoaded', initializeHeader);
 
-export { getUserProfile, updateHeaderUI, initializeHeader }; 
+export { getUserWithProfile, updateHeaderUI, initializeHeader }; 
