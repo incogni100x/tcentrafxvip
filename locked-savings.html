@@ -5,32 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CT Rocket - Locked Savings</title>
+  <link rel="stylesheet" href="/src/styles/input.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Add Supabase before any module scripts -->
-   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            gray: {
-              900: '#111827',
-            },
-            blue: {
-              400: '#60a5fa',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <!-- Import our CSS -->
-  <link rel="stylesheet" href="/src/styles/input.css">
   <!-- Then add your module scripts -->
-  <script type="module" src="/src/js/main.js"></script>
-  <script type="module" src="/src/js/locked-savings.js"></script>
+  <script type="module" src="/src/js/locked-savings-view.js"></script>
+  <script type="module" src="/src/js/locked-savings-action.js"></script>
   <script type="module">
     import { initializeLogout } from './src/js/logout.js';
     document.addEventListener('DOMContentLoaded', () => {
@@ -665,8 +646,5 @@
   </script>
 
   <script type="module" src="/src/js/header.js"></script>
-
-  <script type="module" src="/src/js/locked-savings-view.js"></script>
-  <script type="module" src="/src/js/locked-savings-action.js"></script>
 </body>
 </html>

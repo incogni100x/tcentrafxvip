@@ -4,26 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CT Rocket - Profile</title>
+  <link rel="stylesheet" href="/src/styles/input.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            gray: {
-              900: '#111827',
-            },
-            blue: {
-              400: '#60a5fa',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
     body {
       font-family: 'IBM Plex Sans', sans-serif;
@@ -35,21 +19,7 @@
     .scrollbar-hide::-webkit-scrollbar {
       display: none;
     }
-    .tab-content {
-      transition: opacity 0.2s ease-in-out;
-    }
 
-    @keyframes pulse {
-      50% {
-        opacity: .5;
-      }
-    }
-    .skeleton {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      background-color: #374151; /* gray-700 */
-      border-radius: 0.375rem; /* rounded-md */
-    }
-    
     @media (max-width: 640px) {
       html {
         font-size: 14px;

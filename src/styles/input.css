@@ -1,2 +1,6 @@
 /* This file can contain any global CSS styles */
-/* that need to be applied to every page. */ 
+/* that need to be applied to every page. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities; 

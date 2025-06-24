@@ -3,7 +3,7 @@ import { getCurrentUser } from './session.js';
 import Toastify from 'toastify-js';
 import "toastify-js/src/toastify.css";
 
-document.addEventListener('DOMContentLoaded', async () => {
+export async function initializeWithdrawalPage() {
     const user = await getCurrentUser();
     if (!user) return;
 
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeConfirmationBtn = document.getElementById('close-confirmation');
     const cancelWithdrawalBtn = document.getElementById('cancel-withdrawal');
     const confirmWithdrawalBtn = document.getElementById('confirm-withdrawal');
-    const closeSuccessBtn = document.getElementById('close-success');
+    const successDoneBtn = document.getElementById('success-done-btn');
     const confirmMethodEl = document.getElementById('confirm-method');
     const confirmAmountEl = document.getElementById('confirm-amount');
     const confirmFeeEl = document.getElementById('confirm-fee');
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     confirmWithdrawalBtn.addEventListener('click', executeWithdrawal);
     closeConfirmationBtn.addEventListener('click', hideModal);
     cancelWithdrawalBtn.addEventListener('click', hideModal);
-    closeSuccessBtn.addEventListener('click', () => {
+    successDoneBtn.addEventListener('click', () => {
         hideModal();
     });
 
@@ -411,4 +411,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchAndPopulateBeneficiaries();
     fetchRecentWithdrawals();
     selectTab('bank transfer');
-}); 
+} 
