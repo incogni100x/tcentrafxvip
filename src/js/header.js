@@ -75,15 +75,27 @@ function initializeSidebar() {
     });
 }
 
-
 // Main initialization function
-async function initializeHeader() {
-    const profile = await getUserWithProfile();
-    updateHeaderUI(profile);
+function initializeHeader() {
+    // These are safe to run immediately as they only set up event listeners
     initializeLogoutButtons();
     initializeSidebar();
+
+    // Listen for auth state changes. This will fire once on page load
+    // and correctly handle the timing of post-login session availability.
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+            // User is signed in. We can now safely get their profile.
+            const profile = await getUserWithProfile();
+            updateHeaderUI(profile);
+        } else {
+            // User is signed out. Let updateHeaderUI handle redirects.
+            updateHeaderUI(null);
+        }
+    });
 }
 
+// This runs on every page that includes header.js, ensuring consistent behavior.
 document.addEventListener('DOMContentLoaded', initializeHeader);
 
-export { getUserWithProfile, updateHeaderUI, initializeHeader }; 
+export { initializeHeader }; 
