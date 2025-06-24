@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- DOM Elements ---
     const balanceElements = document.querySelectorAll('.available-balance');
-    const balanceLoading = document.getElementById('balance-loading');
+    const balanceSkeleton = document.getElementById('balance-skeleton');
     const withdrawalForm = document.getElementById('withdrawal-form');
     
     // Method Tabs
@@ -88,10 +88,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     // --- Core Logic ---
+    const getStatusBadge = (status) => {
+        const baseClasses = 'px-2 py-1 text-xs font-medium rounded-full';
+        switch (status) {
+            case 'approved':
+                return `<span class="${baseClasses} bg-green-900 text-green-300">Approved</span>`;
+            case 'pending':
+                return `<span class="${baseClasses} bg-yellow-900 text-yellow-300">Pending</span>`;
+            case 'rejected':
+                return `<span class="${baseClasses} bg-red-900 text-red-300">Rejected</span>`;
+            default:
+                return `<span class="${baseClasses} bg-gray-700 text-gray-300">${status}</span>`;
+        }
+    };
 
     // Fetch and display user's available balance
     async function fetchBalance() {
-        balanceLoading.classList.remove('hidden');
+        balanceSkeleton.classList.remove('hidden');
+        balanceElements.forEach(el => el.classList.add('hidden'));
+        
         try {
             const { data, error } = await supabase.from('profiles').select('cash_balance').eq('id', user.id).single();
             if (error) throw error;
@@ -102,7 +117,95 @@ document.addEventListener('DOMContentLoaded', async () => {
             balanceElements.forEach(el => el.textContent = 'Error');
             Toastify({ text: "Could not load balance.", duration: 3000, style: { background: "red" } }).showToast();
         } finally {
-            balanceLoading.classList.add('hidden');
+            balanceSkeleton.classList.add('hidden');
+            balanceElements.forEach(el => el.classList.remove('hidden'));
+        }
+    }
+
+    // Fetch and display recent withdrawals
+    async function fetchRecentWithdrawals() {
+        const tableBody = document.getElementById('recent-withdrawals-table-body');
+        const cardsContainer = document.getElementById('recent-withdrawals-cards');
+        const tableSkeleton = document.getElementById('recent-withdrawals-table-skeleton');
+        const cardsSkeleton = document.getElementById('recent-withdrawals-cards-skeleton');
+
+        tableSkeleton.classList.remove('hidden');
+        cardsSkeleton.classList.remove('hidden');
+        tableBody.classList.add('hidden');
+        cardsContainer.classList.add('hidden');
+
+        try {
+            const { data, error } = await supabase
+                .from('withdrawals')
+                .select(`
+                    id,
+                    requested_at,
+                    method,
+                    amount,
+                    status,
+                    saved_beneficiaries ( bank_name, account_number ),
+                    crypto_currency
+                `)
+                .eq('user_id', user.id)
+                .order('requested_at', { ascending: false })
+                .limit(5);
+
+            if (error) throw error;
+            
+            tableBody.innerHTML = '';
+            cardsContainer.innerHTML = '';
+
+            if (data.length === 0) {
+                const emptyMessage = `<div class="text-center py-8 text-gray-400">No recent withdrawals found.</div>`;
+                tableBody.innerHTML = `<tr><td colspan="5">${emptyMessage}</td></tr>`;
+                cardsContainer.innerHTML = emptyMessage;
+            } else {
+                data.forEach(w => {
+                    const shortId = w.id.split('-')[0].toUpperCase();
+                    const date = new Date(w.requested_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const methodDisplay = w.method === 'crypto' 
+                        ? `${w.crypto_currency}` 
+                        : `${w.saved_beneficiaries.bank_name} (...${String(w.saved_beneficiaries.account_number).slice(-4)})`;
+                    const statusBadge = getStatusBadge(w.status);
+
+                    // Create table row
+                    const row = `
+                        <tr>
+                            <td class="px-6 py-4 font-mono text-sm">${shortId}</td>
+                            <td class="px-6 py-4">${methodDisplay}</td>
+                            <td class="px-6 py-4">${date}</td>
+                            <td class="px-6 py-4">${statusBadge}</td>
+                            <td class="px-6 py-4 text-right font-medium">${formatCurrency(w.amount)}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+
+                    // Create mobile card
+                    const card = `
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="font-mono text-sm">${shortId}</div>
+                                <div class="font-semibold">${formatCurrency(w.amount)}</div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-400">
+                                <span>${methodDisplay}</span>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                    `;
+                    cardsContainer.innerHTML += card;
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching recent withdrawals:', err);
+            const errorMessage = `<div class="text-center py-8 text-red-400">Could not load recent withdrawals.</div>`;
+            tableBody.innerHTML = `<tr><td colspan="5">${errorMessage}</td></tr>`;
+            cardsContainer.innerHTML = errorMessage;
+        } finally {
+            tableSkeleton.classList.add('hidden');
+            cardsSkeleton.classList.add('hidden');
+            tableBody.classList.remove('hidden');
+            cardsContainer.classList.remove('hidden');
         }
     }
 
@@ -277,6 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             handleBeneficiarySelectChange(); 
             fetchBalance();
             fetchAndPopulateBeneficiaries(); 
+            fetchRecentWithdrawals();
 
         } catch (error) {
             Toastify({ text: `Error: ${error.message}`, duration: 4000, style: { background: "red" } }).showToast();
@@ -305,5 +409,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Initial Page Load ---
     fetchBalance();
     fetchAndPopulateBeneficiaries();
+    fetchRecentWithdrawals();
     selectTab('bank transfer');
 }); 
