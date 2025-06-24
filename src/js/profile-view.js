@@ -45,16 +45,7 @@ function populateUserData(profile) {
   const countryInput = document.getElementById('country');
   if (countryInput) {
     // Handle mapping from common full names to the dropdown's value attribute
-    const countryValue = profile.country || '';
-    const countryMap = {
-      'USA': 'us',
-      'United States': 'us',
-      'Canada': 'ca',
-      'United Kingdom': 'uk',
-      'Australia': 'au'
-    };
-    // Use the mapped value (e.g., 'us') if it exists, otherwise use the original value
-    countryInput.value = countryMap[countryValue.trim()] || countryValue;
+    countryInput.value = profile.country || '';
   }
 }
 
@@ -116,7 +107,6 @@ async function handleProfileUpdate(event) {
   // Get data from form
   const fullName = document.getElementById('full-name').value;
   const phoneNumber = document.getElementById('phone-number').value;
-  const country = document.getElementById('country').value;
 
   const { error } = await supabase
     .from('profiles')
@@ -124,7 +114,6 @@ async function handleProfileUpdate(event) {
       id: user.id, // Included for upsert to find or create the row
       full_name: fullName,
       phone_number: phoneNumber,
-      country: country,
       updated_at: new Date()
     })
     .eq('id', user.id);
