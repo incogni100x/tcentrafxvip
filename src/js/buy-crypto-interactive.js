@@ -181,6 +181,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (transactionForm) {
     transactionForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+      const processingMessage = document.getElementById('processing-message');
+      
+      if (processingMessage) {
+        if (transactionType === 'buy') {
+          processingMessage.textContent = 'Please wait while we process your Buy Crypto transaction...';
+        } else {
+          processingMessage.textContent = 'Please wait while we process your Sell Crypto transaction...';
+        }
+      }
       
       processingOverlay.classList.remove('hidden');
 
@@ -190,7 +201,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
 
       let units, result;
-      const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
 
       if (investmentType === 'amount') {
         const amount = parseFloat(amountInput.value) || 0;

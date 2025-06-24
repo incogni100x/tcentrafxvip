@@ -102,27 +102,6 @@ function renderSummary(activeFunds) {
   }
 }
 
-function renderSummarySkeleton() {
-  const investmentContainer = document.getElementById('summary-total-investment-container');
-  const valueContainer = document.getElementById('summary-current-value-container');
-  const fundsContainer = document.getElementById('summary-active-funds-container');
-
-  const skeletonContent = `
-    <div class="flex items-center gap-3 mb-3">
-        <div class="skeleton w-10 h-10 rounded-lg shrink-0"></div>
-        <div class="flex-1 space-y-2">
-            <div class="skeleton h-4 w-24"></div>
-            <div class="skeleton h-6 w-32"></div>
-        </div>
-    </div>
-    <div class="skeleton h-3 w-40"></div>
-  `;
-  
-  if(investmentContainer) investmentContainer.innerHTML = skeletonContent;
-  if(valueContainer) valueContainer.innerHTML = skeletonContent;
-  if(fundsContainer) fundsContainer.innerHTML = skeletonContent;
-}
-
 function renderActiveFundsSkeleton() {
   const desktopBody = document.getElementById('active-funds-tbody-desktop');
   const mobileContainer = document.getElementById('active-funds-cards');
@@ -328,7 +307,6 @@ function renderSoldHistory(history) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  renderSummarySkeleton();
   renderActiveFundsSkeleton();
 
   const portfolioData = await fetchPortfolioData();
