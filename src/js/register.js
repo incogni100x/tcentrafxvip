@@ -194,10 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!session) throw new Error('User not authenticated.');
 
       const { error } = await supabase.functions.invoke('submit-referral-code', {
-        body: { referral_code: referralCode },
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+        body: { referral_code: referralCode }
       });
 
       if (error) throw error;
