@@ -242,11 +242,14 @@ function initializePage() {
         if (summaryResult.error) {
             console.error("Error fetching summary data:", summaryResult.error);
             Toastify({ text: "Failed to load your savings summary.", duration: 3000, style: { background: "red" } }).showToast();
-        } else {
+        } else if (summaryResult.data) {
             renderSummaryCards(summaryResult.data);
-            renderActiveSavings(summaryResult.data.active_deposits);
-            renderHistoricalSavings(summaryResult.data.historical_deposits);
-            initializeEarlyClosureActions();
+            const activeSavings = summaryResult.data.active_savings || [];
+            const historicalSavings = summaryResult.data.historical_savings || [];
+            
+            renderActiveSavings(activeSavings);
+            renderHistoricalSavings(historicalSavings);
+            initializeEarlyClosureActions(activeSavings);
         }
     }
     
@@ -255,5 +258,11 @@ function initializePage() {
     fetchPageData();
 }
 
-// Wait for the header to confirm a valid session before initializing the page.
-document.addEventListener('profile-loaded', initializePage); 
+document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        window.location.href = '/login.html';
+        return;
+    }
+    initializePage();
+}); 
