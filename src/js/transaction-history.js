@@ -79,6 +79,16 @@ function getTypeIcon(type) {
     return `<div class="w-8 h-8 rounded-full bg-gray-100"></div>`;
 }
 
+/**
+ * Capitalizes the first letter of a string.
+ * @param {string} s The string to capitalize.
+ * @returns {string}
+ */
+function capitalize(s) {
+    if (typeof s !== 'string') return ''
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+}
+
 // --- DOM RENDERING --- //
 
 /**
@@ -121,20 +131,22 @@ function renderPage() {
             hour: 'numeric', minute: '2-digit', hour12: true
         });
 
-        const formattedAmount = `${tx.transaction_type === 'deposit' ? '+' : '-'}$${Number(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const isDeposit = tx.transaction_type.toLowerCase() === 'deposit';
+        const formattedAmount = `${isDeposit ? '+' : '-'}$${Math.abs(Number(tx.amount)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         const truncatedId = truncateId(tx.transaction_id.toUpperCase());
         const formattedDetails = formatDetails(tx.details);
+        const displayType = capitalize(tx.transaction_type);
 
         // Create Desktop Row
         const row = document.createElement('tr');
         row.className = 'border-b border-gray-700 hover:bg-gray-700/50 transition-colors';
         row.innerHTML = `
             <td class="px-6 py-4"><div class="font-medium text-white">${truncatedId}</div></td>
-            <td class="px-6 py-4"><div class="flex items-center gap-2">${typeIcon.replace(/w-8 h-8/, 'w-6 h-6')} <span class="text-white">${tx.transaction_type}</span></div></td>
+            <td class="px-6 py-4"><div class="flex items-center gap-2">${typeIcon.replace(/w-8 h-8/, 'w-6 h-6')} <span class="text-white">${displayType}</span></div></td>
             <td class="px-6 py-4 text-gray-300">${formattedDetails}</td>
             <td class="px-6 py-4"><div class="text-white">${displayDate}</div><div class="text-xs text-gray-400">${time}</div></td>
             <td class="px-6 py-4"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge}">${tx.status}</span></td>
-            <td class="px-6 py-4"><div class="text-white font-medium ${tx.transaction_type === 'deposit' ? 'text-green-400' : ''}">${formattedAmount}</div></td>
+            <td class="px-6 py-4"><div class="font-medium ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</div></td>
             <td class="px-6 py-4"><button class="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button></td>
         `;
         desktopTbody.appendChild(row);
@@ -147,18 +159,18 @@ function renderPage() {
                 <div class="flex items-center gap-3">
                     ${typeIcon}
                     <div>
-                        <div class="font-semibold text-white text-base">${tx.transaction_type}</div>
+                        <div class="font-semibold text-white text-base">${displayType}</div>
                         <div class="text-xs text-gray-400">${truncatedId}</div>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-lg font-semibold ${tx.transaction_type === 'deposit' ? 'text-green-400' : 'text-white'}">${formattedAmount}</div>
+                    <div class="text-lg font-semibold ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</div>
                     <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium ${badge}">${tx.status}</span>
                 </div>
             </div>
             <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div>
-                    <div class="text-xs text-gray-400">${tx.transaction_type === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
+                    <div class="text-xs text-gray-400">${tx.transaction_type.toLowerCase() === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
                     <div class="text-sm text-white font-medium">${formattedDetails}</div>
                 </div>
                 <div>
