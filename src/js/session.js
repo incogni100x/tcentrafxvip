@@ -1,24 +1,38 @@
 import { supabase } from './client.js';
 
 export async function getUserWithProfile() {
-    const cachedProfile = sessionStorage.getItem('userProfile');
-    if (cachedProfile) {
-        try {
-            return JSON.parse(cachedProfile);
-        } catch (e) {
-            sessionStorage.removeItem('userProfile');
-        }
-    }
+    // 1. Get the session from Supabase. This is the source of truth for auth state
+    // and will handle automatic token refreshing.
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    // First, get the authenticated user from Supabase. This is the source of truth.
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        console.log("No authenticated user found.");
+    if (sessionError) {
+        console.error("Error getting session:", sessionError.message);
         return null;
     }
 
-    // Now, try to get the profile from the database.
-    // This might fail if the profile is new, but the user is still valid.
+    if (!session) {
+        // No user is signed in.
+        sessionStorage.removeItem('userProfile'); // Clean up old cache just in case
+        return null;
+    }
+
+    const user = session.user;
+
+    // 2. We have a valid session. Now, let's get the profile, using a cache to be efficient.
+    const cachedProfileKey = `userProfile_${user.id}`;
+    const cachedProfile = sessionStorage.getItem(cachedProfileKey);
+
+    if (cachedProfile) {
+        try {
+            // Combine the fresh session user with the cached profile
+            return { ...user, profile: JSON.parse(cachedProfile) };
+        } catch (e) {
+            // If parsing fails, remove the bad item and fetch from DB
+            sessionStorage.removeItem(cachedProfileKey);
+        }
+    }
+
+    // 3. Profile not in cache, so fetch from the database.
     try {
         const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -27,27 +41,27 @@ export async function getUserWithProfile() {
             .single();
 
         if (profileError && profileError.code !== 'PGRST116') {
-            // PGRST116 means no rows found, which is a valid case for a new user.
-            // We only throw for other, unexpected errors.
+            // PGRST116 means no rows were found, which can happen for new users.
+            // We only want to throw for other, unexpected database errors.
             throw profileError;
         }
 
         if (profileData) {
-            const userWithProfile = { ...user, profile: profileData };
-            sessionStorage.setItem('userProfile', JSON.stringify(userWithProfile));
-            return userWithProfile;
+            // Store the fetched profile in sessionStorage for next time
+            sessionStorage.setItem(cachedProfileKey, JSON.stringify(profileData));
+            return { ...user, profile: profileData };
+        } else {
+             // User is authenticated but has no profile in the DB yet.
+             console.warn("User authenticated but no profile found in database.");
+             return user; // Return the user object without a profile.
         }
 
     } catch (dbError) {
         console.error("Database error fetching profile:", dbError.message);
-        // Don't kill the session for a DB error. Return the user without a profile.
+        // Even if the profile fetch fails, we have an authenticated user.
+        // Return the user object so the app doesn't think they are logged out.
+        return user;
     }
-
-    // If we are here, it means the user is authenticated but has no profile yet,
-    // or there was a non-critical DB error.
-    // Return the core user object so the app knows someone is logged in.
-    console.warn("User is authenticated, but profile data is not available. Returning user object without profile.");
-    return user;
 }
 
 export async function getCurrentUser() {
