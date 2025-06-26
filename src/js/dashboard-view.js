@@ -116,11 +116,7 @@ async function initializeDashboardView() {
 
 // --- INITIALIZATION ---
 
-let hasInitialized = false;
-// Wait for the auth state to be confirmed before fetching data.
-supabase.auth.onAuthStateChange((event, session) => {
-    if (session && !hasInitialized) {
-        hasInitialized = true;
-        initializeDashboardView();
-    }
+// The header script now handles auth checks and fires this event.
+document.addEventListener('profile-loaded', () => {
+    initializeDashboardView();
 }); 

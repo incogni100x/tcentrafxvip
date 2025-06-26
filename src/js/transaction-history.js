@@ -293,6 +293,7 @@ async function initializePage() {
         noTransactionsMessage.querySelector('p').textContent = 'Could not retrieve transaction history. Please refresh the page or try again later.';
         noTransactionsMessage.querySelector('a').classList.add('hidden');
     }
+
 }
 
 document.addEventListener('DOMContentLoaded', initializePage);

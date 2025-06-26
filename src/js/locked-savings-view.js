@@ -2,16 +2,8 @@ import { supabase } from './client.js';
 import Toastify from 'toastify-js';
 import "toastify-js/src/toastify.css";
 import { initializeLockedSavingsActions, initializeEarlyClosureActions } from './locked-savings-action.js';
-import { getCurrentUser } from './session.js';
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const user = await getCurrentUser();
-    if (!user) {
-        // The getCurrentUser function handles the redirection,
-        // so we just need to stop execution here.
-        return;
-    }
-
+function initializePage() {
     const plansGrid = document.getElementById('plans-grid');
     const activeTbody = document.getElementById('active-deposits-tbody');
     const activeCards = document.getElementById('active-deposits-cards');
@@ -249,16 +241,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (summaryResult.error) {
             console.error("Error fetching summary data:", summaryResult.error);
-            Toastify({ text: "Failed to load your savings data.", duration: 3000, style: { background: "red" } }).showToast();
+            Toastify({ text: "Failed to load your savings summary.", duration: 3000, style: { background: "red" } }).showToast();
         } else {
             renderSummaryCards(summaryResult.data);
-            renderActiveSavings(summaryResult.data.active_savings);
-            renderHistoricalSavings(summaryResult.data.historical_savings);
-            initializeEarlyClosureActions(summaryResult.data.active_savings);
+            renderActiveSavings(summaryResult.data.active_deposits);
+            renderHistoricalSavings(summaryResult.data.historical_deposits);
+            initializeEarlyClosureActions();
         }
     }
     
     // Initial skeleton rendering for plans is now in fetchPageData
     // We just need to remove the old call to fetchPlans
     fetchPageData();
-}); 
+}
+
+// Wait for the header to confirm a valid session before initializing the page.
+document.addEventListener('profile-loaded', initializePage); 

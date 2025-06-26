@@ -137,12 +137,8 @@ async function renderRecentTransactions() {
     }
 }
 
-let hasRendered = false;
-// Listen for auth state changes to ensure we only fetch when logged in.
-supabase.auth.onAuthStateChange((event, session) => {
-    // We only want to fetch data when a session is confirmed and we haven't rendered yet.
-    if (!hasRendered && session && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
-        hasRendered = true;
-        renderRecentTransactions();
-    }
+// Listen for the 'profile-loaded' event dispatched by header.js
+// to ensure we only fetch when a valid session is confirmed and cached.
+document.addEventListener('profile-loaded', () => {
+    renderRecentTransactions();
 });

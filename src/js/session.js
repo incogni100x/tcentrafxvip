@@ -10,49 +10,44 @@ export async function getUserWithProfile() {
         }
     }
 
+    // First, get the authenticated user from Supabase. This is the source of truth.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+        console.log("No authenticated user found.");
         return null;
     }
 
-    // Retry logic to handle the small delay between user creation in auth
-    // and profile creation in the database via a trigger.
-    for (let i = 0; i < 3; i++) {
-        try {
-            const { data, error, status } = await supabase.functions.invoke('get-user-profile');
+    // Now, try to get the profile from the database.
+    // This might fail if the profile is new, but the user is still valid.
+    try {
+        const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-            if (error) {
-                // If we get a real auth error, sign out and redirect immediately.
-                if (status === 401 || status === 403) {
-                    throw new Error('User is not authorized.');
-                }
-                // For other errors, log them but allow a retry.
-                console.warn(`Attempt ${i + 1} to fetch profile failed:`, error.message);
-            }
-
-            // If we get a profile, cache and return it.
-            if (data && data.profile) {
-                sessionStorage.setItem('userProfile', JSON.stringify(data.profile));
-                return data.profile;
-            }
-
-            // If no profile was found yet, wait before retrying.
-            if (i < 2) { // Don't wait after the last attempt.
-                await new Promise(res => setTimeout(res, 500));
-            }
-        } catch (err) {
-            console.error('Critical error fetching user profile:', err.message);
-            await signOut(); // This will clear session storage and sign out from Supabase.
-            window.location.href = '/'; // Force redirect.
-            return null; // Stop execution.
+        if (profileError && profileError.code !== 'PGRST116') {
+            // PGRST116 means no rows found, which is a valid case for a new user.
+            // We only throw for other, unexpected errors.
+            throw profileError;
         }
+
+        if (profileData) {
+            const userWithProfile = { ...user, profile: profileData };
+            sessionStorage.setItem('userProfile', JSON.stringify(userWithProfile));
+            return userWithProfile;
+        }
+
+    } catch (dbError) {
+        console.error("Database error fetching profile:", dbError.message);
+        // Don't kill the session for a DB error. Return the user without a profile.
     }
 
-    console.error('Failed to retrieve user profile after multiple attempts.');
-    // If all retries fail, it's a genuine issue, so sign out.
-    await signOut();
-    window.location.href = '/';
-    return null;
+    // If we are here, it means the user is authenticated but has no profile yet,
+    // or there was a non-critical DB error.
+    // Return the core user object so the app knows someone is logged in.
+    console.warn("User is authenticated, but profile data is not available. Returning user object without profile.");
+    return user;
 }
 
 export async function getCurrentUser() {

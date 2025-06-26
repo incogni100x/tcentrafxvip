@@ -1,5 +1,5 @@
 import { supabase } from './client.js';
-import { getCurrentUser, signOut } from './session.js';
+import { getUserWithProfile, signOut, getCurrentUser } from './session.js';
 
 // Update Header UI
 async function updateHeaderUI() {
@@ -7,23 +7,32 @@ async function updateHeaderUI() {
     
     if (!user) {
         const path = window.location.pathname.split('/').pop();
-        if (path !== '' && path !== 'index.html' && path !== 'signup.html') {
+        if (path !== '' && path !== 'index.html' && path !== 'register.html' && path !== 'login.html' && path !== 'forgot-password.html') {
             window.location.href = '/';
         }
         return;
     }
 
-    // Get initials from auth metadata (same as deposit.js)
-    const fullName = user.user_metadata?.full_name || 'User';
-    const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+    // UNBLOCK PAGE LOAD: Dispatch the event immediately after confirming a user exists.
+    const event = new CustomEvent('profile-loaded', { detail: { user: user } });
+    document.dispatchEvent(event);
     
+    // Set a quick, temporary name from the auth data.
+    const tempFullName = user.user_metadata?.full_name || 'User';
+    const tempInitials = tempFullName.split(' ').map(n => n[0]).join('').toUpperCase();
     document.querySelectorAll('#user-initials').forEach(el => {
-        el.textContent = initials;
+        el.textContent = tempInitials;
     });
 
-    // Still fire the event for compatibility with dashboard pages
-    const event = new CustomEvent('profile-loaded', { detail: { user } });
-    document.dispatchEvent(event);
+    // Now, fetch the full profile in the background to get the most up-to-date data.
+    const userProfile = await getUserWithProfile();
+
+    if (userProfile && userProfile.full_name) {
+        const finalInitials = userProfile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.querySelectorAll('#user-initials').forEach(el => {
+            el.textContent = finalInitials;
+        });
+    }
 }
 
 // Logout functionality
@@ -75,9 +84,9 @@ async function initializeHeader() {
     
     // Also listen for auth state changes for real-time updates
     supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            await updateHeaderUI();
-        } else if (event === 'SIGNED_OUT') {
+        // We only need to react to sign-out events here, as sign-in/refresh
+        // will trigger a page load that runs updateHeaderUI anyway.
+        if (event === 'SIGNED_OUT') {
             window.location.href = '/';
         }
     });
