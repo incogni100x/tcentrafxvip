@@ -205,13 +205,32 @@
 
             <div>
               <h1 class="text-xl sm:text-2xl font-bold text-white">Time Deposits</h1>
-              <p class="text-gray-300 mt-1 text-sm sm:text-base hidden sm:block">
-                Secure your savings with guaranteed returns
-              </p>
+              <p class="text-gray-400 mt-1 text-sm sm:text-base">Lock your crypto for a fixed period to earn higher returns.</p>
             </div>
           </div>
 
           <div class="flex items-center gap-2 sm:gap-4">
+            <!-- Notification Bell -->
+            <div class="relative">
+              <button id="notification-button" class="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 sm:w-6 sm:h-6"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>
+                <span id="notification-dot" class="absolute top-1 right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-gray-800 hidden"></span>
+              </button>
+              
+              <!-- Notification Panel -->
+              <div id="notification-panel" class="absolute right-0 mt-2 w-80 sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-lg hidden z-20">
+                <div class="p-4 border-b border-gray-700">
+                  <h3 class="text-lg font-semibold text-white">Notifications</h3>
+                </div>
+                <div id="notification-list" class="max-h-96 overflow-y-auto scrollbar-hide">
+                  <!-- Notifications will be dynamically inserted here -->
+                  <div class="p-4 text-center text-gray-400">Loading notifications...</div>
+                </div>
+                <div class="p-2 border-t border-gray-700 text-center">
+                  <a href="#" id="mark-all-as-read" class="text-sm text-blue-400 hover:underline">Mark all as read</a>
+                </div>
+              </div>
+            </div>
             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <span class="text-blue-600 font-semibold text-xs sm:text-sm uppercase" id="user-initials"></span>
             </div>

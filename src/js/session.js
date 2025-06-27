@@ -1,4 +1,5 @@
 import { supabase } from './client.js';
+import { getNotifications } from './notifications.js';
 
 export async function getUserWithProfile() {
     // 1. Get the session from Supabase. This is the source of truth for auth state
@@ -25,7 +26,9 @@ export async function getUserWithProfile() {
     if (cachedProfile) {
         try {
             // Combine the fresh session user with the cached profile
-            return { ...user, profile: JSON.parse(cachedProfile) };
+            const profile = JSON.parse(cachedProfile);
+            const notifications = await getNotifications();
+            return { ...user, profile, notifications };
         } catch (e) {
             // If parsing fails, remove the bad item and fetch from DB
             sessionStorage.removeItem(cachedProfileKey);
@@ -46,21 +49,24 @@ export async function getUserWithProfile() {
             throw profileError;
         }
 
+        const notifications = await getNotifications();
+
         if (profileData) {
             // Store the fetched profile in sessionStorage for next time
             sessionStorage.setItem(cachedProfileKey, JSON.stringify(profileData));
-            return { ...user, profile: profileData };
+            return { ...user, profile: profileData, notifications };
         } else {
              // User is authenticated but has no profile in the DB yet.
              console.warn("User authenticated but no profile found in database.");
-             return user; // Return the user object without a profile.
+             return { ...user, notifications }; // Return the user object without a profile.
         }
 
     } catch (dbError) {
         console.error("Database error fetching profile:", dbError.message);
         // Even if the profile fetch fails, we have an authenticated user.
         // Return the user object so the app doesn't think they are logged out.
-        return user;
+        const notifications = await getNotifications();
+        return { ...user, notifications };
     }
 }
 

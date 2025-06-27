@@ -1,5 +1,6 @@
 import { supabase } from './client.js';
 import { getUserWithProfile, signOut, getCurrentUser } from './session.js';
+import { getNotifications, markNotificationAsRead } from './notifications.js';
 
 // Update Header UI
 async function updateHeaderUI() {
@@ -27,11 +28,15 @@ async function updateHeaderUI() {
     // Now, fetch the full profile in the background to get the most up-to-date data.
     const userProfile = await getUserWithProfile();
 
-    if (userProfile && userProfile.full_name) {
-        const finalInitials = userProfile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (userProfile && userProfile.profile && userProfile.profile.full_name) {
+        const finalInitials = userProfile.profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
         document.querySelectorAll('#user-initials').forEach(el => {
             el.textContent = finalInitials;
         });
+    }
+    // Render notifications
+    if (userProfile && userProfile.notifications) {
+        renderNotifications(userProfile.notifications);
     }
 }
 
@@ -73,11 +78,81 @@ function initializeSidebar() {
     });
 }
 
+function initializeNotifications() {
+    const notificationButton = document.getElementById('notification-button');
+    const notificationPanel = document.getElementById('notification-panel');
+
+    if (!notificationButton || !notificationPanel) return;
+
+    notificationButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isHidden = notificationPanel.classList.contains('hidden');
+        if (isHidden) {
+            notificationPanel.classList.remove('hidden');
+            // We could also mark notifications as read on open
+        } else {
+            notificationPanel.classList.add('hidden');
+        }
+    });
+
+    // Close the panel if clicking outside
+    document.addEventListener('click', (event) => {
+        if (!notificationPanel.contains(event.target) && !notificationButton.contains(event.target)) {
+            notificationPanel.classList.add('hidden');
+        }
+    });
+    
+}
+
+function renderNotifications(notifications) {
+    const notificationList = document.getElementById('notification-list');
+    const notificationDot = document.getElementById('notification-dot');
+    if (!notificationList || !notificationDot) return;
+
+    notificationList.innerHTML = ''; // Clear previous notifications
+
+    if (!notifications || notifications.length === 0) {
+        notificationList.innerHTML = '<div class="p-4 text-center text-gray-400">You have no new notifications.</div>';
+        notificationDot.classList.add('hidden');
+        return;
+    }
+
+    const hasUnread = notifications.some(n => !n.is_read);
+    if (hasUnread) {
+        notificationDot.classList.remove('hidden');
+    } else {
+        notificationDot.classList.add('hidden');
+    }
+
+    notifications.forEach(notification => {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = `p-4 border-b border-gray-700 ${!notification.is_read ? 'bg-gray-750' : ''}`;
+        notificationElement.innerHTML = `
+            <h4 class="font-semibold text-white">${notification.title}</h4>
+            <p class="text-sm text-gray-300">${notification.message}</p>
+            <div class="text-xs text-gray-400 mt-2">${new Date(notification.created_at).toLocaleString()}</div>
+        `;
+        notificationElement.addEventListener('click', async () => {
+            if (!notification.is_read) {
+                await markNotificationAsRead(notification.id);
+                notificationElement.classList.remove('bg-gray-750');
+                // Optimistically update the UI
+                const remainingUnread = notifications.find(n => n.id !== notification.id && !n.is_read);
+                if (!remainingUnread) {
+                    notificationDot.classList.add('hidden');
+                }
+            }
+        });
+        notificationList.appendChild(notificationElement);
+    });
+}
+
 // Main initialization function
 async function initializeHeader() {
     // These are safe to run immediately as they only set up event listeners
     initializeLogoutButtons();
     initializeSidebar();
+    initializeNotifications();
 
     // Get user and update UI immediately
     await updateHeaderUI();
