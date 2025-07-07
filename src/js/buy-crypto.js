@@ -337,7 +337,7 @@ async function renderActiveFunds(funds) {
           </div>
         </td>
         <td class="px-3 py-4 text-sm text-white">${fund.units_held.toFixed(4)}</td>
-        <td class="px-3 py-4 text-sm text-white">${formatCurrency(fund.avg_purchase_price)}</td>
+        <td class="px-3 py-4 text-sm text-white">${formatCurrency(currentPrice)}</td>
         <td class="px-3 py-4 text-sm text-white">${formatCurrency(fund.total_investment)}</td>
         <td class="px-3 py-4 text-sm text-white">${formatCurrency(fund.current_market_value)}</td>
         <td class="px-3 py-4 text-sm ${gainLossClass}">${gainLossSign}${formatCurrency(fund.gain_loss)}</td>
@@ -367,7 +367,7 @@ async function renderActiveFunds(funds) {
         </div>
         <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div><div class="text-xs text-gray-400">Units Held</div><div class="text-sm text-white font-medium">${fund.units_held.toFixed(4)}</div></div>
-          <div><div class="text-xs text-gray-400">Avg. Price</div><div class="text-sm text-white font-medium">${formatCurrency(fund.avg_purchase_price)}</div></div>
+          <div><div class="text-xs text-gray-400">Current Price</div><div class="text-sm text-white font-medium">${formatCurrency(currentPrice)}</div></div>
           <div><div class="text-xs text-gray-400">Investment</div><div class="text-sm text-white font-medium">${formatCurrency(fund.total_investment)}</div></div>
           <div><div class="text-xs text-gray-400">Current Value</div><div class="text-sm text-white font-medium">${formatCurrency(fund.current_market_value)}</div></div>
           <div><div class="text-xs text-gray-400">Gain/Loss</div><div class="text-sm ${gainLossClass} font-medium">${gainLossSign}${formatCurrency(fund.gain_loss)}</div></div>
