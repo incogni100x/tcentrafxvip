@@ -41,7 +41,7 @@ export const cryptoTokens = [
   { id: 40, symbol: 'MANA', name: 'Decentraland' },
   { id: 41, symbol: 'AXL', name: 'Axelar' },
   { id: 42, symbol: 'HNT', name: 'Helium' },
-  { id: 43, symbol: 'ENJIN', name: 'Enjin' },
+  { id: 43, symbol: 'ENJ', name: 'Enjin' },
   { id: 44, symbol: 'LEO', name: 'UNUS SED LEO' },
   { id: 45, symbol: 'AIOZ', name: 'AIOZ Network' },
   { id: 46, symbol: 'APE', name: 'ApeCoin' },

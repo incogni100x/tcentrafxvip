@@ -113,7 +113,10 @@ async function createCryptoCard(token, backendData, userFund = null) {
     card.className = 'bg-gray-800 border border-gray-700 rounded-lg p-4 fund-card';
 
     if (hasFund) {
-        const currentPrice = userFund.units_held > 0 ? userFund.current_market_value / userFund.units_held : 0;
+        let currentPrice = userFund.current_price;
+        if (typeof currentPrice === 'undefined' && userFund.units_held > 0) {
+          currentPrice = userFund.current_market_value / userFund.units_held;
+        }
         card.dataset.name = userFund.fund_name;
         card.dataset.symbol = userFund.crypto_symbol;
         card.dataset.price = currentPrice;
@@ -337,7 +340,11 @@ async function renderActiveFunds(funds) {
 
     const gainLossClass = fund.gain_loss >= 0 ? 'text-green-400' : 'text-red-400';
     const gainLossSign = fund.gain_loss >= 0 ? '+' : '';
-    const currentPrice = fund.units_held > 0 ? fund.current_market_value / fund.units_held : 0;
+    
+    let currentPrice = fund.current_price;
+    if (typeof currentPrice === 'undefined' && fund.units_held > 0) {
+      currentPrice = fund.current_market_value / fund.units_held;
+    }
     
     const desktopRow = `
       <tr class="border-b border-gray-700" 
@@ -607,21 +614,28 @@ function toggleMaxButtons() {
 function openTransactionModal(fundCard, transactionType) {
     let fundName, fundCode, fundPrice, fundInterest, iconSvg;
 
-    const isPortfolioItem = fundCard.dataset.name;
-
-    if (isPortfolioItem) { // It's a portfolio item with data attributes
+    const isPortfolioContext = fundCard.matches('tr') || (fundCard.dataset.unitsHeld && parseFloat(fundCard.dataset.unitsHeld) > 0);
+    
+    if (isPortfolioContext) {
+        // This is for any item the user HOLDS, whether in the portfolio list or the available tokens grid.
+        // It MUST have data attributes.
         fundName = fundCard.dataset.name;
         fundCode = fundCard.dataset.symbol;
-        const price = parseFloat(fundCard.dataset.price);
-        fundPrice = `$${price.toFixed(2)}`;
         fundInterest = `${fundCard.dataset.interest}%`;
+        const price = parseFloat(fundCard.dataset.price);
+        // Use the precise price from the data attribute.
+        fundPrice = !isNaN(price) ? `$${price.toFixed(2)}` : 'N/A';
+        
         const iconContainer = fundCard.querySelector('.w-10.h-10.rounded-full');
         if (iconContainer) iconSvg = iconContainer.innerHTML;
-    } else { // It's an available crypto card, use old logic
-        const nameEl = fundCard.querySelector('h3.font-semibold, .font-semibold.text-white.text-sm, .font-semibold.text-white.text-base');
+
+    } else {
+        // This is for a token the user does NOT hold, from the "Available Tokens" grid.
+        // We read from the visible elements, which use the general static_price.
+        const nameEl = fundCard.querySelector('h3.font-semibold');
         const codeEl = fundCard.querySelector('.text-xs.text-gray-400');
         const priceEl = fundCard.querySelector('.text-right .text-lg.font-semibold');
-        const interestEl = fundCard.querySelector('.text-sm.font-semibold.text-green-400, .text-sm.text-green-400');
+        const interestEl = fundCard.querySelector('.text-sm.font-semibold.text-green-400');
         const iconEl = fundCard.querySelector('.w-10.h-10.rounded-full svg, .w-10.h-10.rounded-full .w-6.h-6');
 
         if (nameEl) fundName = nameEl.textContent.trim();
