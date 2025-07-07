@@ -45,7 +45,7 @@ function renderCryptoCardSkeletons() {
     }
 }
 
-async function fetchAndRenderAvailableCryptos() {
+async function fetchAndRenderAvailableCryptos(activeFunds = []) {
     const availableCryptosContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
     if (!availableCryptosContainer) return;
 
@@ -65,7 +65,8 @@ async function fetchAndRenderAvailableCryptos() {
         const cardPromises = cryptoTokens.map(token => {
             const backendData = data.find(d => d.crypto_symbol === token.symbol);
             if (!backendData) return null;
-            return createCryptoCard(token, backendData);
+            const userFund = activeFunds.find(fund => fund.crypto_symbol === token.symbol);
+            return createCryptoCard(token, backendData, userFund);
         }).filter(Boolean);
 
         const cards = await Promise.all(cardPromises);
@@ -79,7 +80,7 @@ async function fetchAndRenderAvailableCryptos() {
     }
 }
 
-async function createCryptoCard(token, backendData) {
+async function createCryptoCard(token, backendData, userFund = null) {
     const { symbol, name } = token;
     const { static_price, interest_rate } = backendData;
     
@@ -102,8 +103,24 @@ async function createCryptoCard(token, backendData) {
         console.warn(`Could not load icon for ${symbol}:`, e.message);
     }
     
+    const hasFund = userFund !== null;
+    const sellButtonDisabled = !hasFund ? 'disabled' : '';
+    const sellButtonClasses = !hasFund 
+        ? 'border-gray-700 text-gray-500 cursor-not-allowed' 
+        : 'border-gray-600 text-white hover:bg-gray-700';
+
     const card = document.createElement('div');
     card.className = 'bg-gray-800 border border-gray-700 rounded-lg p-4 fund-card';
+
+    if (hasFund) {
+        const currentPrice = userFund.units_held > 0 ? userFund.current_market_value / userFund.units_held : 0;
+        card.dataset.name = userFund.fund_name;
+        card.dataset.symbol = userFund.crypto_symbol;
+        card.dataset.price = currentPrice;
+        card.dataset.interest = userFund.interest_rate;
+        card.dataset.unitsHeld = userFund.units_held;
+    }
+    
     card.innerHTML = `
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -130,7 +147,7 @@ async function createCryptoCard(token, backendData) {
         </div>
         <div class="flex gap-2">
             <button class="flex-1 bg-blue-600 text-white py-2.5 sm:py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">Buy</button>
-            <button class="flex-1 border border-gray-600 text-white py-2.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium">Sell</button>
+            <button class="flex-1 border ${sellButtonClasses} py-2.5 sm:py-2 rounded-md transition-colors text-sm font-medium" ${sellButtonDisabled}>Sell</button>
         </div>
     `;
     return card;
@@ -152,6 +169,7 @@ async function fetchAndRenderPortfolio() {
             await renderActiveFunds(portfolioData.active_funds);
             renderTransactionHistory(portfolioData.transaction_history);
             renderSoldHistory(portfolioData.sold_history);
+            return portfolioData.active_funds;
         } else {
             throw new Error("No data returned from portfolio function.");
         }
@@ -164,6 +182,7 @@ async function fetchAndRenderPortfolio() {
         if (desktopBody) desktopBody.innerHTML = '<tr><td colspan="8" class="text-center p-4 text-gray-500">Could not load portfolio data.</td></tr>';
         if (mobileContainer) mobileContainer.innerHTML = '<div class="text-center p-4 text-gray-500">Could not load portfolio data.</div>';
     }
+    return [];
 }
 
 function formatCurrency(value) {
@@ -777,9 +796,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     renderCryptoCardSkeletons();
     
-    // Fetch data in parallel
-    await Promise.all([
-        fetchAndRenderAvailableCryptos(),
-        fetchAndRenderPortfolio()
-    ]);
+    // Fetch portfolio first to know what the user owns
+    const activeFunds = await fetchAndRenderPortfolio();
+    // Then fetch available cryptos and pass in user's funds
+    await fetchAndRenderAvailableCryptos(activeFunds);
 }); 
