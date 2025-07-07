@@ -318,9 +318,15 @@ async function renderActiveFunds(funds) {
 
     const gainLossClass = fund.gain_loss >= 0 ? 'text-green-400' : 'text-red-400';
     const gainLossSign = fund.gain_loss >= 0 ? '+' : '';
+    const currentPrice = fund.units_held > 0 ? fund.current_market_value / fund.units_held : 0;
     
     const desktopRow = `
-      <tr class="border-b border-gray-700">
+      <tr class="border-b border-gray-700" 
+          data-name="${fund.fund_name}" 
+          data-symbol="${fund.crypto_symbol}" 
+          data-price="${currentPrice}"
+          data-interest="${fund.interest_rate}"
+          data-units-held="${fund.units_held}">
         <td class="px-3 py-4">
           <div class="flex items-center gap-3">
             ${iconHtml}
@@ -343,7 +349,12 @@ async function renderActiveFunds(funds) {
     `;
 
     const mobileCard = `
-      <div class="bg-gray-700 rounded-lg p-4">
+      <div class="bg-gray-700 rounded-lg p-4"
+          data-name="${fund.fund_name}" 
+          data-symbol="${fund.crypto_symbol}" 
+          data-price="${currentPrice}"
+          data-interest="${fund.interest_rate}"
+          data-units-held="${fund.units_held}">
         <div class="flex justify-between items-start mb-3">
           <div class="flex items-center gap-3">
             ${iconHtml}
@@ -500,9 +511,17 @@ function setupEventListeners() {
     });
 
     if(modal) {
-        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
-        cancelTransactionBtn.addEventListener('click', () => modal.classList.add('hidden'));
-        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+        const closeActions = () => {
+            modal.classList.add('hidden');
+            const availableUnitsSpan = document.getElementById('modal-available-units');
+            if (availableUnitsSpan) {
+                availableUnitsSpan.parentElement.classList.add('hidden');
+            }
+            delete modal.dataset.maxUnits;
+        };
+        closeModalBtn.addEventListener('click', closeActions);
+        cancelTransactionBtn.addEventListener('click', closeActions);
+        modal.addEventListener('click', e => { if (e.target === modal) closeActions(); });
     }
 
     if(successDoneBtn) {
@@ -519,29 +538,101 @@ function setupEventListeners() {
     document.querySelectorAll('input[name="investment-type"]').forEach(radio => radio.addEventListener('change', updateCalculations));
     document.getElementById('amount-input')?.addEventListener('input', updateCalculations);
     document.getElementById('units-input')?.addEventListener('input', updateCalculations);
-    document.querySelectorAll('input[name="transaction-type"]').forEach(radio => radio.addEventListener('change', updateCalculations));
+    document.querySelectorAll('input[name="transaction-type"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            updateCalculations();
+            toggleMaxButtons();
+        });
+    });
+
+    const maxAmountBtn = document.getElementById('max-amount-btn');
+    const maxUnitsBtn = document.getElementById('max-units-btn');
+    const amountInput = document.getElementById('amount-input');
+    const unitsInput = document.getElementById('units-input');
+
+    if (maxAmountBtn) {
+        maxAmountBtn.addEventListener('click', () => {
+            const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
+            const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
+            if (maxUnits > 0 && price > 0) {
+                const maxAmount = maxUnits * price;
+                amountInput.value = maxAmount.toFixed(2);
+                updateCalculations();
+            }
+        });
+    }
+
+    if (maxUnitsBtn) {
+        maxUnitsBtn.addEventListener('click', () => {
+            const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
+            if (maxUnits > 0) {
+                unitsInput.value = maxUnits;
+                updateCalculations();
+            }
+        });
+    }
+}
+
+function toggleMaxButtons() {
+    const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+    const maxAmountBtn = document.getElementById('max-amount-btn');
+    const maxUnitsBtn = document.getElementById('max-units-btn');
+    const shouldShow = transactionType === 'sell';
+
+    if (maxAmountBtn) maxAmountBtn.classList.toggle('hidden', !shouldShow);
+    if (maxAmountBtn) maxAmountBtn.classList.toggle('flex', shouldShow);
+    if (maxUnitsBtn) maxUnitsBtn.classList.toggle('hidden', !shouldShow);
+    if (maxUnitsBtn) maxUnitsBtn.classList.toggle('flex', shouldShow);
 }
 
 function openTransactionModal(fundCard, transactionType) {
-    let fundName = 'Unknown Fund', fundCode = 'N/A', fundPrice = '$0.00', fundInterest = '0%', iconSvg = '';
+    let fundName, fundCode, fundPrice, fundInterest, iconSvg;
+
+    const isPortfolioItem = fundCard.dataset.name;
+
+    if (isPortfolioItem) { // It's a portfolio item with data attributes
+        fundName = fundCard.dataset.name;
+        fundCode = fundCard.dataset.symbol;
+        const price = parseFloat(fundCard.dataset.price);
+        fundPrice = `$${price.toFixed(2)}`;
+        fundInterest = `${fundCard.dataset.interest}%`;
+        const iconContainer = fundCard.querySelector('.w-10.h-10.rounded-full');
+        if (iconContainer) iconSvg = iconContainer.innerHTML;
+    } else { // It's an available crypto card, use old logic
+        const nameEl = fundCard.querySelector('h3.font-semibold, .font-semibold.text-white.text-sm, .font-semibold.text-white.text-base');
+        const codeEl = fundCard.querySelector('.text-xs.text-gray-400');
+        const priceEl = fundCard.querySelector('.text-right .text-lg.font-semibold');
+        const interestEl = fundCard.querySelector('.text-sm.font-semibold.text-green-400, .text-sm.text-green-400');
+        const iconEl = fundCard.querySelector('.w-10.h-10.rounded-full svg, .w-10.h-10.rounded-full .w-6.h-6');
+
+        if (nameEl) fundName = nameEl.textContent.trim();
+        if (codeEl) fundCode = codeEl.textContent.trim();
+        if (priceEl) fundPrice = priceEl.textContent.trim();
+        if (interestEl) fundInterest = interestEl.textContent.trim();
+        if (iconEl) iconSvg = iconEl.outerHTML;
+    }
     
-    // Extract data from either a crypto card or a portfolio row
-    const nameEl = fundCard.querySelector('h3.font-semibold, .font-semibold.text-white.text-sm, .font-semibold.text-white.text-base');
-    const codeEl = fundCard.querySelector('.text-xs.text-gray-400');
-    const priceEl = fundCard.querySelector('.text-right .text-lg.font-semibold');
-    const interestEl = fundCard.querySelector('.text-sm.font-semibold.text-green-400, .text-sm.text-green-400');
-    const iconEl = fundCard.querySelector('.w-10.h-10.rounded-full svg, .w-10.h-10.rounded-full .w-6.h-6');
+    fundName = fundName || 'Unknown Fund';
+    fundCode = fundCode || 'N/A';
+    fundPrice = fundPrice || '$0.00';
+    fundInterest = fundInterest || '0%';
+    iconSvg = iconSvg || `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
 
-    if (nameEl) fundName = nameEl.textContent.trim();
-    if (codeEl) fundCode = codeEl.textContent.trim();
-    if (priceEl) fundPrice = priceEl.textContent.trim();
-    if (interestEl) fundInterest = interestEl.textContent.trim();
-    if (iconEl) iconSvg = iconEl.outerHTML;
+    const modal = document.getElementById('transaction-modal');
+    const availableUnits = fundCard.dataset.unitsHeld;
+    const availableUnitsSpan = document.getElementById('modal-available-units');
 
-    // For portfolio items, the price isn't on the card. We need to fetch it.
-    if (!priceEl) {
-        const portfolioPriceEl = Array.from(fundCard.querySelectorAll('td')).find(td => td.textContent.includes('$'));
-        if (portfolioPriceEl) fundPrice = portfolioPriceEl.textContent;
+    if (transactionType === 'Sell' && availableUnits) {
+        modal.dataset.maxUnits = availableUnits;
+        if (availableUnitsSpan) {
+            availableUnitsSpan.textContent = `Available: ${parseFloat(availableUnits).toFixed(4)} ${fundCode}`;
+            availableUnitsSpan.parentElement.classList.remove('hidden');
+        }
+    } else {
+        delete modal.dataset.maxUnits;
+        if (availableUnitsSpan) {
+            availableUnitsSpan.parentElement.classList.add('hidden');
+        }
     }
 
     document.getElementById('fund-name').textContent = fundName;
@@ -555,6 +646,7 @@ function openTransactionModal(fundCard, transactionType) {
     const radioButton = document.querySelector(`input[name="transaction-type"][value="${transactionType.toLowerCase()}"]`);
     if (radioButton) radioButton.checked = true;
     
+    toggleMaxButtons();
     updateCalculations();
     document.getElementById('transaction-modal').classList.remove('hidden');
 }
@@ -592,6 +684,10 @@ async function handleTransactionSubmit(e) {
     
     if (result.success) {
         document.getElementById('transaction-modal').classList.add('hidden');
+        const availableUnitsSpan = document.getElementById('modal-available-units');
+        if (availableUnitsSpan) {
+            availableUnitsSpan.parentElement.classList.add('hidden');
+        }
         e.target.reset();
         showSuccessModal(transactionType, cryptoSymbol, units, result);
     } else {
@@ -629,18 +725,38 @@ function updateCalculations() {
     const cryptoSymbol = document.getElementById('fund-code').textContent.trim();
     const investmentType = document.querySelector('input[name="investment-type"]:checked').value;
     const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+    const modal = document.getElementById('transaction-modal');
+    const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
     
     let units = 0, amount = 0;
+    const amountInput = document.getElementById('amount-input');
+    const unitsInput = document.getElementById('units-input');
 
     if (investmentType === 'amount') {
-        amount = parseFloat(document.getElementById('amount-input').value) || 0;
+        document.getElementById('amount-input-container').classList.remove('hidden');
+        document.getElementById('units-input-container').classList.add('hidden');
+        amount = parseFloat(amountInput.value) || 0;
         units = (price > 0) ? amount / price : 0;
-    } else {
-        units = parseFloat(document.getElementById('units-input').value) || 0;
+        
+        if (transactionType === 'sell' && maxUnits > 0 && units > maxUnits) {
+            units = maxUnits;
+            amount = units * price;
+            amountInput.value = amount.toFixed(2);
+        }
+
+    } else { // units
+        document.getElementById('units-input-container').classList.remove('hidden');
+        document.getElementById('amount-input-container').classList.add('hidden');
+        units = parseFloat(unitsInput.value) || 0;
+
+        if (transactionType === 'sell' && maxUnits > 0 && units > maxUnits) {
+            units = maxUnits;
+            unitsInput.value = units;
+        }
         amount = units * price;
     }
 
-    document.getElementById('estimated-units').textContent = `${units.toFixed(4)} ${cryptoSymbol}`;
+    document.getElementById('estimated-units').textContent = `${units.toFixed(8)} ${cryptoSymbol}`;
     document.getElementById('total-amount').textContent = `$${amount.toFixed(2)}`;
     
     if (transactionType === 'buy') {
