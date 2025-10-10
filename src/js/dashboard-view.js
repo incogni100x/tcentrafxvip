@@ -1,12 +1,14 @@
 import { supabase } from './client.js';
 import Toastify from 'toastify-js';
 
-// Helper function to format currency
-function formatCurrency(value) {
+let userCurrency = 'USD';
+
+// Helper function to format currency with user's preferred currency
+function formatCurrency(value, currencyCode = userCurrency) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
-  }).format(value);
+    currency: currencyCode,
+  }).format(value || 0);
 }
 
 // --- RENDER DATA FUNCTIONS ---
@@ -45,20 +47,24 @@ function renderCryptoValueCard(value) {
   `;
 }
 
-function renderLockedSavingsCard(value) {
+function renderMembershipCard(value, membershipSummary) {
   const container = document.getElementById('locked-savings-card');
   if (!container) return;
+  
+  const activeCount = membershipSummary?.active_deposits_count || 0;
+  const totalInterest = membershipSummary?.total_interest_earned || 0;
+  
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 lg:w-8 lg:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-yellow-600"><path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"/><path d="M16 10h.01"/><path d="M2 8v1a2 2 0 0 0 2 2h1"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-yellow-600"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
       </div>
       <div class="flex-1">
-        <p class="text-sm text-gray-400">Locked Savings</p>
+        <p class="text-sm text-gray-400">Membership Plans</p>
         <p class="text-2xl lg:text-xl font-bold text-white">${formatCurrency(value)}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">Currently earning interest</p>
+    <p class="text-xs text-gray-400">${activeCount} active • ${formatCurrency(totalInterest)} earned</p>
   `;
 }
 
@@ -83,34 +89,52 @@ function renderTotalBalanceCard(cash, crypto, savings) {
 // --- DATA FETCHING & RENDERING ---
 
 async function initializeDashboardView() {
-  const { data, error } = await supabase.functions.invoke('get-dashboard-data');
+  try {
+    // Get user's currency preference first
+    const { data: profile } = await supabase.from('profiles').select('currency_code').single();
+    if (profile?.currency_code) {
+      userCurrency = profile.currency_code;
+    }
 
-  if (error) {
-    console.error('Failed to load dashboard data:', error);
+    // Get dashboard data
+    const { data, error } = await supabase.functions.invoke('get-dashboard-data');
+
+    if (error) {
+      console.error('Failed to load dashboard data:', error);
+      Toastify({
+        text: "Failed to load dashboard data: " + error.message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "center",
+        style: {
+          background: "linear-gradient(to right, #e74c3c, #c0392b)",
+        }
+      }).showToast();
+      
+      // Show error state in cards
+      document.getElementById('cash-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+      document.getElementById('crypto-value-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+      document.getElementById('locked-savings-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+      document.getElementById('total-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
+      return;
+    }
+
+    if (data) {
+      renderCashBalanceCard(data.cash_balance);
+      renderCryptoValueCard(data.total_crypto_value);
+      renderMembershipCard(data.total_locked_savings, data.membership_summary);
+      renderTotalBalanceCard(data.cash_balance, data.total_crypto_value, data.total_locked_savings);
+    }
+  } catch (err) {
+    console.error('Error initializing dashboard:', err);
     Toastify({
-      text: "Failed to load dashboard data: " + error.message,
+      text: "Failed to load dashboard",
       duration: 3000,
-      close: true,
       gravity: "top",
       position: "center",
-      style: {
-        background: "linear-gradient(to right, #e74c3c, #c0392b)",
-      }
+      style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" }
     }).showToast();
-    
-    // Show error state in cards
-    document.getElementById('cash-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('crypto-value-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('locked-savings-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    document.getElementById('total-balance-card').innerHTML = `<p class="text-red-400 text-center">Error loading data</p>`;
-    return;
-  }
-
-  if (data) {
-    renderCashBalanceCard(data.cash_balance);
-    renderCryptoValueCard(data.total_crypto_value);
-    renderLockedSavingsCard(data.total_locked_savings);
-    renderTotalBalanceCard(data.cash_balance, data.total_crypto_value, data.total_locked_savings);
   }
 }
 

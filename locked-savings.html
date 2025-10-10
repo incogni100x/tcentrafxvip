@@ -4,7 +4,7 @@
   
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CapiRocket - Time Deposits</title>
+  <title>tCentralFXvip - Time Deposits</title>
   <link rel="stylesheet" href="/src/styles/input.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -204,8 +204,8 @@
             </button>
 
             <div>
-              <h1 class="text-xl sm:text-2xl font-bold text-white">Time Deposits</h1>
-              <p class="text-gray-400 mt-1 text-sm sm:text-base">Lock your crypto for a fixed period to earn higher returns.</p>
+              <h1 class="text-xl sm:text-2xl font-bold text-white">Membership Plans</h1>
+              <p class="text-gray-400 mt-1 text-sm sm:text-base">Join exclusive membership plans to earn premium weekly returns.</p>
             </div>
           </div>
 
@@ -330,75 +330,105 @@
             </div>
           </div>
 
-          <!-- Select a Savings Plan -->
+          <!-- Select a Membership Plan -->
           <div id="plans-container" class="bg-gray-800 rounded-2xl p-6 lg:p-8 shadow-sm mb-8">
             <div class="border-b border-gray-700 pb-4 mb-6">
-              <h3 class="text-xl font-semibold text-white">Select a Savings Plan</h3>
-              <p class="text-gray-400 mt-1 text-sm">Choose a plan that fits your financial goals.</p>
+              <h3 class="text-xl font-semibold text-white">Select a Membership Plan</h3>
+              <p class="text-gray-400 mt-1 text-sm">Choose a plan that fits your investment goals and risk appetite.</p>
             </div>
             <div id="plans-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <!-- Savings plan cards will be inserted here by JavaScript -->
             </div>
           </div>
 
-          <!-- Active Time Deposits -->
-          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-            <div class="p-6 lg:p-8 flex items-center justify-between border-b border-gray-700">
-              <div>
-                <h3 class="text-xl font-semibold text-white">Active Time Deposits</h3>
-                <p class="text-gray-400 mt-1 text-sm">Manage your current investments</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-400" id="deposits-count">Loading deposits...</span>
+          <!-- Active Memberships -->
+          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden border border-gray-700/50">
+            <div class="p-6 lg:p-8 border-b border-gray-700/50 bg-gradient-to-r from-gray-800 to-gray-750">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-bold text-white">Active Memberships</h3>
+                    <p class="text-gray-400 mt-1 text-sm">Manage your current membership investments and top-up anytime</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="text-right">
+                    <span class="text-xs text-gray-400 block">Total Active</span>
+                    <span class="text-lg font-bold text-white" id="deposits-count">Loading...</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div class="overflow-x-auto" id="active-deposits-container">
-              <table class="w-full hidden lg:table">
-                <thead>
-                  <tr class="text-left text-xs uppercase text-gray-500 border-b border-gray-700">
-                    <th class="px-6 py-3 font-semibold tracking-wider">Plan / ID</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Principal</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Interest Rate</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Start Date</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Maturity Date</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Status</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Actions</th>
+              <table class="w-full hidden lg:table table-fixed">
+                <colgroup>
+                  <col class="w-[22%]">
+                  <col class="w-[12%]">
+                  <col class="w-[10%]">
+                  <col class="w-[8%]">
+                  <col class="w-[11%]">
+                  <col class="w-[11%]">
+                  <col class="w-[8%]">
+                  <col class="w-[18%]">
+                </colgroup>
+                <thead class="bg-gray-750/50">
+                  <tr class="text-left text-xs uppercase text-gray-400 border-b border-gray-700/50">
+                    <th class="px-6 py-4 font-semibold tracking-wider">Plan / ID</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Investment</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Interest Rate</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Duration</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Start Date</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">End Date</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="active-deposits-tbody">
                   <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">
-                      Loading Time Deposits...
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-400">
+                      Loading Memberships...
                     </td>
                   </tr>
                 </tbody>
               </table>
               <div id="active-deposits-cards" class="lg:hidden space-y-4">
                   <div class="px-6 py-8 text-center text-gray-400">
-                      Loading Time Deposits...
+                      Loading Memberships...
                   </div>
               </div>
             </div>
           </div>
 
-          <!-- Historical Savings -->
-          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden mt-8">
-            <div class="p-6 lg:p-8 flex items-center justify-between border-b border-gray-700">
-              <div>
-                <h3 class="text-xl font-semibold text-white">Historical Savings</h3>
-                <p class="text-gray-400 mt-1 text-sm">Your past and concluded savings plans</p>
+          <!-- Historical Memberships -->
+          <div class="bg-gray-800 rounded-2xl shadow-sm overflow-hidden mt-8 border border-gray-700/50">
+            <div class="p-6 lg:p-8 border-b border-gray-700/50 bg-gradient-to-r from-gray-800 to-gray-750">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Historical Memberships</h3>
+                  <p class="text-gray-400 mt-1 text-sm">Your past and concluded membership plans</p>
+                </div>
               </div>
             </div>
             <div class="overflow-x-auto" id="historical-deposits-container">
               <table class="w-full hidden lg:table">
-                <thead>
-                  <tr class="text-left text-xs uppercase text-gray-500 border-b border-gray-700">
-                    <th class="px-6 py-3 font-semibold tracking-wider">FD Number</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Principal</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Maturity Date</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Status</th>
-                    <th class="px-6 py-3 font-semibold tracking-wider">Amount Paid</th>
+                <thead class="bg-gray-750/50">
+                  <tr class="text-left text-xs uppercase text-gray-400 border-b border-gray-700/50">
+                    <th class="px-6 py-4 font-semibold tracking-wider">Membership ID</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Investment</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">End Date</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Status</th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">Final Payout</th>
                   </tr>
                 </thead>
                 <tbody id="historical-deposits-tbody">
@@ -443,20 +473,27 @@
               </div>
           </div>
 
-          <div>
-              <label for="modal-amount" class="block text-sm font-medium text-white mb-2">Investment Amount</label>
-              <div class="relative">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-400">$</span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                  <label for="modal-amount" class="block text-sm font-medium text-white mb-2">Investment Amount</label>
+                  <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span class="text-gray-400">$</span>
+                      </div>
+                      <input type="number" id="modal-amount" name="amount" class="pl-8 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="0.00" required>
                   </div>
-                  <input type="number" id="modal-amount" name="amount" class="pl-8 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="0.00" required>
+                  <p id="modal-amount-error" class="text-xs text-red-400 mt-1 h-3"></p>
               </div>
-              <p id="modal-amount-error" class="text-xs text-red-400 mt-1 h-3"></p>
+              <div>
+                  <label for="modal-months" class="block text-sm font-medium text-white mb-2">Duration (Months)</label>
+                  <input type="number" id="modal-months" name="months" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="12" required>
+                  <p id="modal-months-error" class="text-xs text-red-400 mt-1 h-3"></p>
+              </div>
           </div>
 
           <div class="mt-6">
               <button type="submit" id="confirm-create-saving" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium disabled:bg-blue-800 disabled:cursor-not-allowed">
-                  Confirm & Create Saving
+                  Confirm & Create Membership
               </button>
           </div>
         </form>
@@ -594,7 +631,7 @@
 
           <div class="bg-gray-700 rounded-md p-4 w-full space-y-2 mb-6">
             <div class="flex justify-between">
-              <span class="text-sm text-gray-400">FD Number:</span>
+              <span class="text-sm text-gray-400">Membership ID:</span>
               <span id="info-fd-number" class="text-sm font-medium text-white">-</span>
             </div>
             <div class="flex justify-between">
@@ -632,6 +669,103 @@
                 Confirm & Proceed
               </button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top-up Modal -->
+  <div id="topup-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden border border-gray-700">
+      <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+        <h3 class="text-xl font-bold text-white">Top Up Membership</h3>
+        <button id="close-topup-modal" type="button" class="text-gray-400 hover:text-white p-2 -m-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <form id="topup-form" novalidate>
+          <input type="hidden" id="topup-membership-id" name="membership_id">
+          
+          <div class="mb-4 p-4 bg-gray-900/50 rounded-lg space-y-2">
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Plan:</span>
+                  <span id="topup-membership-name" class="font-medium text-white">-</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Membership ID:</span>
+                  <span id="topup-membership-id-display" class="font-medium text-white">-</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                  <span class="text-gray-400">Current Amount:</span>
+                  <span id="topup-current-amount" class="font-medium text-white">-</span>
+              </div>
+          </div>
+
+          <div class="mb-4">
+              <label for="topup-amount" class="block text-sm font-medium text-white mb-2">Top-up Amount</label>
+              <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-400">$</span>
+                  </div>
+                  <input type="number" id="topup-amount" name="amount" class="pl-8 w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400" placeholder="0.00" required>
+              </div>
+              <p id="topup-amount-error" class="text-xs text-red-400 mt-1 h-3"></p>
+          </div>
+
+          <div class="mb-4">
+              <label for="topup-mode" class="block text-sm font-medium text-white mb-2">Top-up Mode</label>
+              <select id="topup-mode" name="topup_mode" class="w-full border border-gray-600 bg-gray-700 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                  <option value="continue">Continue - Keep existing timeline</option>
+                  <option value="reset">Reset - Restart duration with combined amount</option>
+              </select>
+              <p class="text-xs text-gray-400 mt-1">Choose how the top-up should affect your membership duration.</p>
+          </div>
+
+          <div class="mt-6">
+              <button type="submit" id="confirm-topup" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium disabled:bg-blue-800 disabled:cursor-not-allowed">
+                  Confirm Top-up
+              </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top-up Success Modal -->
+  <div id="topup-success-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden border border-gray-700">
+      <div class="p-4 sm:p-6 border-b border-gray-700">
+        <h3 class="text-lg sm:text-xl font-medium text-white">Top-up Successful</h3>
+      </div>
+      <div class="p-6">
+        <div class="flex flex-col items-center justify-center py-6">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h4 class="text-lg font-medium text-white mb-2">Membership Topped Up Successfully</h4>
+          <p class="text-gray-400 text-center mb-6">Your membership has been updated with the additional funds.</p>
+          <div class="bg-gray-700 rounded-md p-4 w-full space-y-2 mb-6">
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-400">Membership ID:</span>
+              <span id="topup-success-membership-id" class="text-sm font-medium text-white">MB-12345678</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-400">Top-up Amount:</span>
+              <span id="topup-success-amount" class="text-sm font-medium text-green-400">$1,000.00</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-400">New Total:</span>
+              <span id="topup-success-new-total" class="text-sm font-medium text-white">$6,000.00</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-400">Top-up Mode:</span>
+              <span id="topup-success-mode" class="text-sm font-medium text-white">Continue</span>
+            </div>
+          </div>
+          <button id="close-topup-success" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium">
+            Done
+          </button>
         </div>
       </div>
     </div>

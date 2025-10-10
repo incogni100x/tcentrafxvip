@@ -2,6 +2,7 @@ import { supabase } from './client.js';
 import Toastify from 'toastify-js';
 import './main.js';
 import '../styles/input.css';
+import currencies from './currencies.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const steps = document.querySelectorAll('.step-content');
@@ -10,6 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentStep = 1;
   let userEmail = '';
+
+  // Populate currency dropdown
+  function populateCurrencyDropdown() {
+    const currencySelect = document.getElementById('currency');
+    if (!currencySelect) return;
+
+    // Clear existing options except the first one
+    currencySelect.innerHTML = '<option value="">Select your preferred currency</option>';
+
+    // Add currencies from the currencies.js file
+    currencies.forEach(currency => {
+      const option = document.createElement('option');
+      option.value = currency.code;
+      option.textContent = `${currency.code} - ${currency.name} (${currency.symbol})`;
+      
+      // Set USD as default selected
+      if (currency.code === 'USD') {
+        option.selected = true;
+      }
+      
+      currencySelect.appendChild(option);
+    });
+  }
+
+  // Initialize currency dropdown
+  populateCurrencyDropdown();
 
   function toggleButtonLoading(button, isLoading) {
     const btnText = button.querySelector('.btn-text');
@@ -103,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstName = document.getElementById('first_name').value;
     const lastName = document.getElementById('last_name').value;
     const phoneNumber = document.getElementById('phone_number').value;
+    const currency = document.getElementById('currency').value;
 
     if (password !== confirmPassword) {
       Toastify({ text: "Passwords do not match!", className: "toast-error" }).showToast();
@@ -117,7 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
         options: {
           data: {
             full_name: `${firstName} ${lastName}`,
-            phone_number: phoneNumber
+            phone_number: phoneNumber,
+            currency_code: currency
           }
         }
       });

@@ -15,6 +15,7 @@ export default defineConfig({
         withdrawal: resolve(__dirname, 'withdrawal.html'),
         login: resolve(__dirname, 'login.html'),
         register: resolve(__dirname, 'register.html'),
+        forgotPassword: resolve(__dirname, 'forgot-password.html'),
       },
     },
   },
