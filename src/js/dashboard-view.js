@@ -1,21 +1,13 @@
 import { supabase } from './client.js';
+import { formatCurrency, getUserCurrency } from './session.js';
 import Toastify from 'toastify-js';
-
-let userCurrency = 'USD';
-
-// Helper function to format currency with user's preferred currency
-function formatCurrency(value, currencyCode = userCurrency) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(value || 0);
-}
 
 // --- RENDER DATA FUNCTIONS ---
 
-function renderCashBalanceCard(balance) {
+async function renderCashBalanceCard(balance) {
   const container = document.getElementById('cash-balance-card');
   if (!container) return;
+  const formattedBalance = await formatCurrency(balance);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 lg:w-8 lg:h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -23,16 +15,17 @@ function renderCashBalanceCard(balance) {
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Cash Balance</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formatCurrency(balance)}</p>
+        <p class="text-2xl lg:text-xl font-bold text-white">${formattedBalance}</p>
       </div>
     </div>
     <p class="text-xs text-gray-400">Available for trading</p>
   `;
 }
 
-function renderCryptoValueCard(value) {
+async function renderCryptoValueCard(value) {
   const container = document.getElementById('crypto-value-card');
   if (!container) return;
+  const formattedValue = await formatCurrency(value);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 lg:w-8 lg:h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -40,19 +33,22 @@ function renderCryptoValueCard(value) {
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Crypto Value</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formatCurrency(value)}</p>
+        <p class="text-2xl lg:text-xl font-bold text-white">${formattedValue}</p>
       </div>
     </div>
     <p class="text-xs text-gray-400">Current market value</p>
   `;
 }
 
-function renderMembershipCard(value, membershipSummary) {
+async function renderMembershipCard(value, membershipSummary) {
   const container = document.getElementById('locked-savings-card');
   if (!container) return;
   
   const activeCount = membershipSummary?.active_deposits_count || 0;
   const totalInterest = membershipSummary?.total_interest_earned || 0;
+  
+  const formattedValue = await formatCurrency(value);
+  const formattedInterest = await formatCurrency(totalInterest);
   
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
@@ -61,17 +57,18 @@ function renderMembershipCard(value, membershipSummary) {
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Membership Plans</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formatCurrency(value)}</p>
+        <p class="text-2xl lg:text-xl font-bold text-white">${formattedValue}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">${activeCount} active • ${formatCurrency(totalInterest)} earned</p>
+    <p class="text-xs text-gray-400">${activeCount} active • ${formattedInterest} earned</p>
   `;
 }
 
-function renderTotalBalanceCard(cash, crypto, savings) {
+async function renderTotalBalanceCard(cash, crypto, savings) {
   const container = document.getElementById('total-balance-card');
   if (!container) return;
   const total = (cash || 0) + (crypto || 0) + (savings || 0);
+  const formattedTotal = await formatCurrency(total);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
       <div class="w-10 h-10 lg:w-8 lg:h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -79,7 +76,7 @@ function renderTotalBalanceCard(cash, crypto, savings) {
       </div>
       <div class="flex-1">
         <p class="text-sm text-gray-400">Total Balance</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formatCurrency(total)}</p>
+        <p class="text-2xl lg:text-xl font-bold text-white">${formattedTotal}</p>
       </div>
     </div>
     <p class="text-xs text-gray-400">Entire portfolio value</p>
@@ -90,12 +87,11 @@ function renderTotalBalanceCard(cash, crypto, savings) {
 
 async function initializeDashboardView() {
   try {
-    // Get user's currency preference first
-    const { data: profile } = await supabase.from('profiles').select('currency_code').single();
-    if (profile?.currency_code) {
-      userCurrency = profile.currency_code;
-    }
-
+    // Debug: Check what currency we're getting
+    const userCurrency = await getUserCurrency();
+    console.log('Dashboard: User currency is:', userCurrency);
+    console.log('Dashboard: Sample format test:', await formatCurrency(1234.56));
+    
     // Get dashboard data
     const { data, error } = await supabase.functions.invoke('get-dashboard-data');
 
@@ -121,10 +117,10 @@ async function initializeDashboardView() {
     }
 
     if (data) {
-      renderCashBalanceCard(data.cash_balance);
-      renderCryptoValueCard(data.total_crypto_value);
-      renderMembershipCard(data.total_locked_savings, data.membership_summary);
-      renderTotalBalanceCard(data.cash_balance, data.total_crypto_value, data.total_locked_savings);
+      await renderCashBalanceCard(data.cash_balance);
+      await renderCryptoValueCard(data.total_crypto_value);
+      await renderMembershipCard(data.total_locked_savings, data.membership_summary);
+      await renderTotalBalanceCard(data.cash_balance, data.total_crypto_value, data.total_locked_savings);
     }
   } catch (err) {
     console.error('Error initializing dashboard:', err);

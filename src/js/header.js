@@ -14,10 +14,6 @@ async function updateHeaderUI() {
         return;
     }
 
-    // UNBLOCK PAGE LOAD: Dispatch the event immediately after confirming a user exists.
-    const event = new CustomEvent('profile-loaded', { detail: { user: user } });
-    document.dispatchEvent(event);
-    
     // Set a quick, temporary name from the auth data.
     const tempFullName = user.user_metadata?.full_name || 'User';
     const tempInitials = tempFullName.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -25,8 +21,12 @@ async function updateHeaderUI() {
         el.textContent = tempInitials;
     });
 
-    // Now, fetch the full profile in the background to get the most up-to-date data.
+    // Fetch the full profile first to get currency and other data
     const userProfile = await getUserWithProfile();
+    
+    // NOW dispatch the event after profile is fully loaded and cached
+    const event = new CustomEvent('profile-loaded', { detail: { user: user, profile: userProfile } });
+    document.dispatchEvent(event);
 
     if (userProfile && userProfile.profile && userProfile.profile.full_name) {
         const finalInitials = userProfile.profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();

@@ -1,5 +1,5 @@
 import { supabase } from './client.js';
-import { getCurrentUser } from './session.js';
+import { getCurrentUser, formatCurrency } from './session.js';
 import Toastify from 'toastify-js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       
-      showCryptoOverlay(selectedMethod, amount, generateDepositBtn);
+      await showCryptoOverlay(selectedMethod, amount, generateDepositBtn);
       return;
     }
 
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error) throw error;
       if(data.error) throw new Error(data.error);
 
-      showConfirmationScreen(data.deposit_id, bankMethod.name, amount, 'bank transfer');
+      await showConfirmationScreen(data.deposit_id, bankMethod.name, amount, 'bank transfer');
       
       bankAmountInput.value = '';
       cryptoAmountInput.value = '';
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (data.error) throw new Error(data.error);
 
           depositOverlay.classList.add('hidden');
-          showConfirmationScreen(data.deposit_id, methodName, amount, 'crypto');
+          await showConfirmationScreen(data.deposit_id, methodName, amount, 'crypto');
           
           bankAmountInput.value = '';
           cryptoAmountInput.value = '';
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
   }
 
-  function showCryptoOverlay(method, amount, buttonToToggle) {
+  async function showCryptoOverlay(method, amount, buttonToToggle) {
     // Store data on the overlay for the completion step
     depositOverlay.dataset.methodId = method.id;
     depositOverlay.dataset.amount = amount;
@@ -316,18 +316,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('No deposit address provided for QR code generation.');
     }
     
+    const minDeposit = 10;
+    const minDepositText = await formatCurrency(minDeposit);
     document.getElementById('overlay-instructions').textContent = `Send at least ${minDepositText} of ${method.name} to this address.`;
     document.getElementById('overlay-min-amount').textContent = `Minimum deposit: ${minDepositText}`;
     document.getElementById('overlay-send-only').textContent = `Send only ${method.name} to this address`;
   }
   
-  function showConfirmationScreen(depositId, methodName, amount, depositType) {
+  async function showConfirmationScreen(depositId, methodName, amount, depositType) {
     depositForm.classList.add('hidden');
     confirmationScreen.classList.remove('hidden');
     
     document.getElementById('reference-id').textContent = depositId.slice(0, 12).toUpperCase();
     document.getElementById('deposit-method-confirm').textContent = methodName;
-    document.getElementById('deposit-amount').textContent = `$${amount.toFixed(2)} USD`;
+    document.getElementById('deposit-amount').textContent = await formatCurrency(amount);
     
     const bankInfo = document.getElementById('bank-contact-info');
     if (depositType === 'bank transfer') {

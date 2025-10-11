@@ -1,4 +1,5 @@
 import { supabase } from './client.js';
+import { formatCurrency } from './session.js';
 
 // --- CONFIGURATION --- //
 const DESKTOP_TBODY_ID = 'transactions-tbody-desktop';
@@ -94,7 +95,7 @@ function capitalize(s) {
 /**
  * Renders a single page of transactions.
  */
-function renderPage() {
+async function renderPage() {
     const desktopTbody = document.getElementById(DESKTOP_TBODY_ID);
     const mobileContainer = document.getElementById(MOBILE_CARDS_ID);
     const skeleton = document.getElementById(SKELETON_ID);
@@ -119,7 +120,7 @@ function renderPage() {
 
     const paginatedItems = filteredTransactions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-    paginatedItems.forEach(tx => {
+    for (const tx of paginatedItems) {
         const { badge, text: amountColor } = getStatusLook(tx.status);
         const typeIcon = getTypeIcon(tx.transaction_type);
         
@@ -132,7 +133,7 @@ function renderPage() {
         });
 
         const isDeposit = tx.transaction_type.toLowerCase() === 'deposit';
-        const formattedAmount = `${isDeposit ? '+' : '-'}$${Math.abs(Number(tx.amount)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formattedAmount = `${isDeposit ? '+' : '-'}${await formatCurrency(Math.abs(Number(tx.amount)))}`;
         const truncatedId = truncateId(tx.transaction_id.toUpperCase());
         const formattedDetails = formatDetails(tx.details);
         const displayType = capitalize(tx.transaction_type);
@@ -180,7 +181,7 @@ function renderPage() {
             </div>
         `;
         mobileContainer.appendChild(card);
-    });
+    }
 
     renderPagination(countContainer, paginationContainer);
 }
@@ -219,17 +220,17 @@ function renderPagination(countContainer, paginationContainer) {
         </div>
     `;
 
-    document.getElementById('prev-page')?.addEventListener('click', () => {
+    document.getElementById('prev-page')?.addEventListener('click', async () => {
         if (currentPage > 1) {
             currentPage--;
-            renderPage();
+            await renderPage();
         }
     });
 
-    document.getElementById('next-page')?.addEventListener('click', () => {
+    document.getElementById('next-page')?.addEventListener('click', async () => {
         if (currentPage < totalPages) {
             currentPage++;
-            renderPage();
+            await renderPage();
         }
     });
 }
@@ -237,7 +238,7 @@ function renderPagination(countContainer, paginationContainer) {
 /**
  * Filters transactions based on form input.
  */
-function applyFilters() {
+async function applyFilters() {
     const dateFrom = document.getElementById('date-from').value;
     const dateTo = document.getElementById('date-to').value;
     const type = document.getElementById('type-select').value;
@@ -259,18 +260,18 @@ function applyFilters() {
     });
     
     currentPage = 1;
-    renderPage();
+    await renderPage();
 }
 
 /**
  * Resets all filters and displays all transactions.
  */
-function resetFilters() {
+async function resetFilters() {
     const form = document.getElementById('filter-form');
     if (form) {
         form.reset();
     }
-    applyFilters();
+    await applyFilters();
 }
 
 // --- INITIALIZATION --- //
@@ -282,7 +283,7 @@ async function initializePage() {
         
         allTransactions = data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
         filteredTransactions = allTransactions;
-        renderPage();
+        await renderPage();
         
         const form = document.getElementById('filter-form');
         if (form) {

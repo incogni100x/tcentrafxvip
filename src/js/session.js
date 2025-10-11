@@ -92,4 +92,121 @@ export async function signOut() {
         console.error('Error signing out:', error);
     }
     return !error;
+}
+
+// --- CURRENCY UTILITIES ---
+
+/**
+ * Get the user's preferred currency from their cached profile
+ * @returns {Promise<string>} Currency code (e.g., 'USD', 'EUR', 'GBP')
+ */
+export async function getUserCurrency() {
+  const user = await getCurrentUser();
+  if (!user) {
+    console.log('getUserCurrency: No user found, returning USD');
+    return 'USD';
+  }
+  
+  const cachedProfileKey = `userProfile_${user.id}`;
+  const cachedProfile = sessionStorage.getItem(cachedProfileKey);
+  
+  console.log('getUserCurrency: Cached profile key:', cachedProfileKey);
+  console.log('getUserCurrency: Cached profile exists:', !!cachedProfile);
+  
+  if (cachedProfile) {
+    try {
+      const profile = JSON.parse(cachedProfile);
+      console.log('getUserCurrency: Profile currency_code:', profile.currency_code);
+      return profile.currency_code || 'USD';
+    } catch (e) {
+      console.warn('Failed to parse cached profile for currency:', e);
+      return 'USD';
+    }
+  }
+  
+  console.log('getUserCurrency: No cached profile, returning USD');
+  return 'USD';
+}
+
+/**
+ * Format a number as currency using the user's preferred currency
+ * @param {number} amount - The amount to format
+ * @param {string} currencyCode - Optional currency code override
+ * @returns {Promise<string>} Formatted currency string
+ */
+export async function formatCurrency(amount, currencyCode = null) {
+  const currency = currencyCode || await getUserCurrency();
+  const symbol = getCurrencySymbol(currency);
+  
+  // Format number with proper decimal places
+  const formattedNumber = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount || 0);
+  
+  // Return formatted currency with our custom symbol
+  return `${symbol}${formattedNumber}`;
+}
+
+/**
+ * Get currency symbol for the user's preferred currency
+ * @param {string} currencyCode - Optional currency code override
+ * @returns {string} Currency symbol (e.g., '$', '€', '£')
+ */
+export function getCurrencySymbol(currencyCode = null) {
+  const currency = currencyCode || getUserCurrency();
+  
+  // Common currency symbols for better UX (using English symbols, not native)
+  const currencySymbols = {
+    'USD': '$',
+    'EUR': '€',
+    'GBP': '£',
+    'JPY': '¥',
+    'CAD': 'CA$',
+    'AUD': 'AU$',
+    'CHF': 'CHF',
+    'CNY': 'CN¥',
+    'SEK': 'Skr',
+    'NOK': 'Nkr',
+    'DKK': 'Dkr',
+    'PLN': 'zł',
+    'CZK': 'Kč',
+    'HUF': 'Ft',
+    'RUB': 'RUB',
+    'INR': '₹',
+    'KRW': '₩',
+    'SGD': 'S$',
+    'HKD': 'HK$',
+    'NZD': 'NZ$',
+    'MXN': 'MX$',
+    'BRL': 'R$',
+    'ZAR': 'R',
+    'TRY': 'TL',
+    'AED': 'AED',
+    'SAR': 'SR',
+    'QAR': 'QR',
+    'KWD': 'KD',
+    'BHD': 'BD',
+    'OMR': 'OMR',
+    'JOD': 'JD',
+    'LBP': 'LB£',
+    'EGP': 'EGP',
+    'MAD': 'MAD',
+    'TND': 'DT',
+    'DZD': 'DA',
+    'LYD': 'LD',
+    'NGN': '₦',
+    'GHS': 'GH₵',
+    'KES': 'Ksh',
+    'UGX': 'USh',
+    'TZS': 'TSh',
+    'ETB': 'Br',
+    'ZMK': 'ZK',
+    'BWP': 'BWP',
+    'ZWL': 'ZWL$',
+    'XAF': 'FCFA',
+    'XOF': 'CFA'
+  };
+  
+  return currencySymbols[currency] || '$';
 } 

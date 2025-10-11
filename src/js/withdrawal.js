@@ -1,5 +1,5 @@
 import { supabase } from './client.js';
-import { getCurrentUser } from './session.js';
+import { getCurrentUser, formatCurrency } from './session.js';
 import Toastify from 'toastify-js';
 import "toastify-js/src/toastify.css";
 
@@ -68,7 +68,6 @@ export async function initializeWithdrawalPage() {
     ];
 
     // --- Helper Functions ---
-    const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
 
     // --- Modal Logic ---
     function showModal() {
@@ -110,7 +109,8 @@ export async function initializeWithdrawalPage() {
         try {
             const { data, error } = await supabase.from('profiles').select('cash_balance').eq('id', user.id).single();
             if (error) throw error;
-            balanceElements.forEach(el => el.textContent = formatCurrency(data.cash_balance));
+            const formattedBalance = await formatCurrency(data.cash_balance);
+            balanceElements.forEach(el => el.textContent = formattedBalance);
             amountInput.max = data.cash_balance; // Set max withdrawal amount
         } catch (error) {
             console.error('Error fetching balance:', error);
@@ -160,13 +160,14 @@ export async function initializeWithdrawalPage() {
                 tableBody.innerHTML = `<tr><td colspan="5">${emptyMessage}</td></tr>`;
                 cardsContainer.innerHTML = emptyMessage;
             } else {
-                data.forEach(w => {
+                for (const w of data) {
                     const shortId = w.id.split('-')[0].toUpperCase();
                     const date = new Date(w.requested_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     const methodDisplay = w.method === 'crypto' 
                         ? `${w.crypto_currency}` 
                         : `${w.saved_beneficiaries.bank_name} (...${String(w.saved_beneficiaries.account_number).slice(-4)})`;
                     const statusBadge = getStatusBadge(w.status);
+                    const formattedAmount = await formatCurrency(w.amount);
 
                     // Create table row
                     const row = `
@@ -175,7 +176,7 @@ export async function initializeWithdrawalPage() {
                             <td class="px-6 py-4">${methodDisplay}</td>
                             <td class="px-6 py-4">${date}</td>
                             <td class="px-6 py-4">${statusBadge}</td>
-                            <td class="px-6 py-4 text-right font-medium">${formatCurrency(w.amount)}</td>
+                            <td class="px-6 py-4 text-right font-medium">${formattedAmount}</td>
                         </tr>
                     `;
                     tableBody.innerHTML += row;
@@ -185,7 +186,7 @@ export async function initializeWithdrawalPage() {
                         <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
                             <div class="flex justify-between items-center mb-3">
                                 <div class="font-mono text-sm">${shortId}</div>
-                                <div class="font-semibold">${formatCurrency(w.amount)}</div>
+                                <div class="font-semibold">${formattedAmount}</div>
                             </div>
                             <div class="flex justify-between items-center text-sm text-gray-400">
                                 <span>${methodDisplay}</span>
@@ -194,7 +195,7 @@ export async function initializeWithdrawalPage() {
                         </div>
                     `;
                     cardsContainer.innerHTML += card;
-                });
+                }
             }
         } catch (err) {
             console.error('Error fetching recent withdrawals:', err);
@@ -293,7 +294,7 @@ export async function initializeWithdrawalPage() {
     }
 
     // Step 1: User submits the form, this prepares the confirmation modal
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
         e.preventDefault();
 
         const amount = parseFloat(amountInput.value) || 0;
@@ -339,9 +340,9 @@ export async function initializeWithdrawalPage() {
 
         // Populate and show modal
         confirmMethodEl.textContent = currentMethod === 'bank transfer' ? 'Bank Transfer' : 'Cryptocurrency';
-        confirmAmountEl.textContent = formatCurrency(amount);
-        confirmFeeEl.textContent = formatCurrency(fee);
-        confirmTotalEl.textContent = formatCurrency(total);
+        confirmAmountEl.textContent = await formatCurrency(amount);
+        confirmFeeEl.textContent = await formatCurrency(fee);
+        confirmTotalEl.textContent = await formatCurrency(total);
         
         showModal();
     }
@@ -365,10 +366,10 @@ export async function initializeWithdrawalPage() {
             // Populate and show success state
             const fee = Math.max(1, withdrawalData.amount * 0.01);
             const total = withdrawalData.amount - fee;
-            successAmountEl.textContent = formatCurrency(withdrawalData.amount);
-            successFeeEl.textContent = formatCurrency(fee);
+            successAmountEl.textContent = await formatCurrency(withdrawalData.amount);
+            successFeeEl.textContent = await formatCurrency(fee);
             successMethodEl.textContent = withdrawalData.method === 'bank transfer' ? 'Bank Transfer' : 'Cryptocurrency';
-            successTotalEl.textContent = formatCurrency(total);
+            successTotalEl.textContent = await formatCurrency(total);
             referenceIdEl.textContent = data.withdrawalId || 'N/A';
 
             processingState.classList.add('hidden');

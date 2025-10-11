@@ -2,8 +2,9 @@ import { supabase } from './client.js';
 import Toastify from 'toastify-js';
 import "toastify-js/src/toastify.css";
 import { initializeLockedSavingsActions, initializeEarlyClosureActions } from './locked-savings-action.js';
+import { formatCurrency, getUserCurrency } from './session.js';
 
-function initializePage() {
+async function initializePage() {
     const plansGrid = document.getElementById('plans-grid');
     const activeTbody = document.getElementById('active-deposits-tbody');
     const activeCards = document.getElementById('active-deposits-cards');
@@ -39,15 +40,12 @@ function initializePage() {
         }
     }
 
-    function formatCurrency(amount, currencyCode = 'USD') {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(amount || 0);
-    }
 
     function formatDate(dateString) {
         return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
     
-    function renderSummaryCards(data) {
+    async function renderSummaryCards(data) {
         const principalEl = document.getElementById('total-principal-value');
         const interestEl = document.getElementById('interest-earned-value');
         const activeCountEl = document.getElementById('active-deposits-value');
@@ -57,12 +55,12 @@ function initializePage() {
         const hide = (el) => el.classList.add('hidden');
 
         if (principalEl) {
-            principalEl.textContent = formatCurrency(data.total_principal);
+            principalEl.textContent = await formatCurrency(data.total_principal);
             show(document.getElementById('total-principal-content'));
             hide(document.getElementById('total-principal-skeleton'));
         }
         if (interestEl) {
-            interestEl.textContent = formatCurrency(data.total_interest_earned);
+            interestEl.textContent = await formatCurrency(data.total_interest_earned);
             show(document.getElementById('interest-earned-content'));
             hide(document.getElementById('interest-earned-skeleton'));
         }
@@ -73,7 +71,7 @@ function initializePage() {
         }
     }
 
-    function renderActiveSavings(savings, userCurrency = 'USD') {
+    async function renderActiveSavings(savings, userCurrency = 'USD') {
         activeTbody.innerHTML = '';
         activeCards.innerHTML = '';
         document.getElementById('deposits-count').textContent = `${savings.length} Active Membership(s)`;
@@ -86,7 +84,7 @@ function initializePage() {
             return;
         }
 
-        savings.forEach(saving => {
+        for (const saving of savings) {
             const statusBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-900 text-green-300">Active</span>`;
             
             const tableRow = `
@@ -95,7 +93,7 @@ function initializePage() {
                         <div class="font-medium text-white break-words max-w-[200px]">${saving.plan_name}</div>
                         <div class="text-xs text-gray-400 mt-1">MB-${saving.id.substring(0,8).toUpperCase()}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${formatCurrency(saving.amount, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.amount, userCurrency)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-400">${saving.weekly_interest_rate}%</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${saving.duration_months} months</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(saving.start_date)}</td>
@@ -137,7 +135,7 @@ function initializePage() {
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p class="text-gray-400">Investment</p>
-                            <p class="font-semibold text-lg text-white">${formatCurrency(saving.amount, userCurrency)}</p>
+                            <p class="font-semibold text-lg text-white">${await formatCurrency(saving.amount, userCurrency)}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-gray-400">Weekly Interest</p>
@@ -151,7 +149,7 @@ function initializePage() {
                         </div>
                         <div class="text-right">
                             <p class="text-gray-400">Top-ups</p>
-                            <p class="font-semibold text-white">${formatCurrency(saving.total_topups || 0, userCurrency)}</p>
+                            <p class="font-semibold text-white">${await formatCurrency(saving.total_topups || 0, userCurrency)}</p>
                         </div>
                     </div>
                     <div>
@@ -175,10 +173,10 @@ function initializePage() {
             
             activeTbody.innerHTML += tableRow;
             activeCards.innerHTML += card;
-        });
+        }
     }
 
-    function renderHistoricalSavings(savings, userCurrency = 'USD') {
+    async function renderHistoricalSavings(savings, userCurrency = 'USD') {
         historicalTbody.innerHTML = '';
         historicalCards.innerHTML = '';
         
@@ -190,7 +188,7 @@ function initializePage() {
             return;
         }
 
-        savings.forEach(saving => {
+        for (const saving of savings) {
             const statusColors = {
                 pending_closure: 'bg-yellow-900 text-yellow-300',
                 closed_early: 'bg-red-900 text-red-300',
@@ -201,10 +199,10 @@ function initializePage() {
             const tableRow = `
                  <tr class="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">MB-${saving.id.substring(0,8).toUpperCase()}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${formatCurrency(saving.amount, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.amount, userCurrency)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(saving.end_date)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${formatCurrency(saving.final_amount_to_pay, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</td>
                 </tr>`;
             
             const card = `
@@ -213,49 +211,48 @@ function initializePage() {
                         <span class="font-bold text-white">MB-${saving.id.substring(0,8).toUpperCase()}</span>
                         ${statusBadge}
                     </div>
-                    <div class="flex justify-between"><span class="text-gray-400">Investment:</span> <span class="text-white">${formatCurrency(saving.amount, userCurrency)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">Investment:</span> <span class="text-white">${await formatCurrency(saving.amount, userCurrency)}</span></div>
                     <div class="flex justify-between"><span class="text-gray-400">Concluded:</span> <span class="text-gray-300">${formatDate(saving.end_date)}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Final Payout:</span> <span class="text-white font-bold">${formatCurrency(saving.final_amount_to_pay, userCurrency)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">Final Payout:</span> <span class="text-white font-bold">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</span></div>
                 </div>
             `;
             
             historicalTbody.innerHTML += tableRow;
             historicalCards.innerHTML += card;
-        });
+        }
     }
 
-    function renderPlans(plans, userCurrency = 'USD') {
+    async function renderPlans(plans, userCurrency = 'USD') {
         if (!plansGrid) return;
         plansGrid.innerHTML = '';
         if (!plans || plans.length === 0) {
             plansGrid.innerHTML = `<p class="text-gray-400 col-span-full text-center">No membership plans are currently available.</p>`;
             return;
         }
-        plans.forEach(plan => {
+        for (const plan of plans) {
             const card = document.createElement('div');
             card.className = 'bg-gray-800/80 rounded-xl p-6 flex flex-col border border-gray-700 hover:border-blue-500 transition-all duration-300';
-            const maxAmountText = plan.max_amount ? formatCurrency(plan.max_amount, userCurrency) : 'No Limit';
+            const maxAmountText = plan.max_amount ? await formatCurrency(plan.max_amount, userCurrency) : 'No Limit';
             card.innerHTML = `
                 <div class="flex-grow">
                     <h3 class="text-xl font-bold text-white">${plan.plan_name}</h3>
                     <p class="text-green-400 font-semibold mb-4">${plan.weekly_interest_rate}% <span class="text-sm font-normal text-gray-400">weekly interest</span></p>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between"><span class="text-gray-400">Duration:</span><span class="font-medium text-white">${plan.min_months}-${plan.max_months} months</span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Min. Investment:</span><span class="font-medium text-white">${formatCurrency(plan.min_amount, userCurrency)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Min. Investment:</span><span class="font-medium text-white">${await formatCurrency(plan.min_amount, userCurrency)}</span></div>
                         <div class="flex justify-between"><span class="text-gray-400">Max. Investment:</span><span class="font-medium text-white">${maxAmountText}</span></div>
                     </div>
                 </div>
                 <button class="mt-6 w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold select-plan-btn" data-plan-id="${plan.id}">Select Plan</button>
             `;
             plansGrid.appendChild(card);
-        });
+        }
         initializeLockedSavingsActions(plans);
     }
 
     async function fetchPageData() {
-        // Get user profile to get currency
-        const { data: profile } = await supabase.from('profiles').select('currency_code').single();
-        const userCurrency = profile?.currency_code || 'USD';
+        // Get user currency from session
+        const userCurrency = await getUserCurrency();
 
         // Fetch plans for the top section
         const plansPromise = supabase.from('membership_plans').select('*').eq('is_active', true).order('min_amount', { ascending: true });
@@ -276,7 +273,7 @@ function initializePage() {
                 style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
             }).showToast();
         } else {
-            renderPlans(plansResult.data, userCurrency);
+            await renderPlans(plansResult.data, userCurrency);
         }
 
         if (summaryResult.error) {
@@ -289,19 +286,19 @@ function initializePage() {
                 style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
             }).showToast();
         } else if (summaryResult.data) {
-            renderSummaryCards(summaryResult.data);
+            await renderSummaryCards(summaryResult.data);
             const activeSavings = summaryResult.data.active_memberships || [];
             const historicalSavings = summaryResult.data.historical_memberships || [];
             
-            renderActiveSavings(activeSavings, userCurrency);
-            renderHistoricalSavings(historicalSavings, userCurrency);
-            initializeEarlyClosureActions(activeSavings);
+            await renderActiveSavings(activeSavings, userCurrency);
+            await renderHistoricalSavings(historicalSavings, userCurrency);
+            await initializeEarlyClosureActions(activeSavings);
         }
     }
     
     // Initial skeleton rendering for plans is now in fetchPageData
     // We just need to remove the old call to fetchPlans
-    fetchPageData();
+    await fetchPageData();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

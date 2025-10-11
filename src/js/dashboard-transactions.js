@@ -1,4 +1,5 @@
 import { supabase } from './client.js';
+import { formatCurrency } from './session.js';
 
 // --- HELPERS (for consistency with transaction-history.js) ---
 
@@ -78,13 +79,15 @@ async function renderRecentTransactions() {
             return;
         }
 
-        recentTransactions.forEach(tx => {
+        // Process transactions with async currency formatting
+        for (const tx of recentTransactions) {
             const { badge } = getStatusLook(tx.status);
             const txDate = new Date(tx.transaction_date);
             const displayDate = txDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
             const isDeposit = tx.transaction_type.toLowerCase() === 'deposit';
-            const formattedAmount = `${isDeposit ? '+' : '-'}$${Math.abs(Number(tx.amount)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const amount = Math.abs(Number(tx.amount));
+            const formattedAmount = `${isDeposit ? '+' : '-'}${await formatCurrency(amount)}`;
             const formattedDetails = formatDetails(tx.details);
             const truncatedId = truncateId(tx.transaction_id?.toUpperCase());
             const typeIcon = getTypeIcon(tx.transaction_type);
@@ -133,7 +136,7 @@ async function renderRecentTransactions() {
                 </div>
             `;
             mobileContainer.appendChild(card);
-        });
+        }
 
     } catch (error) {
         console.error('Error fetching recent transactions:', error);

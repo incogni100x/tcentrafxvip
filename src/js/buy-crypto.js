@@ -1,7 +1,7 @@
 import { supabase } from './client.js';
 import { cryptoTokens } from './crypto-tokens.js';
 import { buyCrypto, sellCrypto } from './crypto-actions.js';
-import { getCurrentUser } from './session.js';
+import { getCurrentUser, formatCurrency } from './session.js';
 import Toastify from 'toastify-js';
 
 // --- GLOBAL STATE ---
@@ -124,6 +124,9 @@ async function createCryptoCard(token, backendData, userFund = null) {
         card.dataset.unitsHeld = userFund.units_held;
     }
     
+    // Format price with session currency
+    const formattedPrice = await formatCurrency(static_price);
+    
     card.innerHTML = `
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -136,7 +139,7 @@ async function createCryptoCard(token, backendData, userFund = null) {
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-lg font-semibold text-white">$${Number(static_price).toFixed(2)}</div>
+                <div class="text-lg font-semibold text-white">${formattedPrice}</div>
             </div>
         </div>
         <div class="mb-4">
@@ -168,9 +171,9 @@ async function fetchAndRenderPortfolio() {
         }
 
         if (portfolioData) {
-            renderSummary(portfolioData.active_funds);
+            await renderSummary(portfolioData.active_funds);
             await renderActiveFunds(portfolioData.active_funds);
-            renderTransactionHistory(portfolioData.transaction_history);
+            await renderTransactionHistory(portfolioData.transaction_history);
             renderSoldHistory(portfolioData.sold_history);
             return portfolioData.active_funds;
         } else {
@@ -188,11 +191,9 @@ async function fetchAndRenderPortfolio() {
     return [];
 }
 
-function formatCurrency(value) {
-  return (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-}
+// formatCurrency is now imported from session.js
 
-function renderSummary(activeFunds) {
+async function renderSummary(activeFunds) {
   const totalInvestment = activeFunds.reduce((acc, fund) => acc + (fund.total_investment || 0), 0);
   const currentValue = activeFunds.reduce((acc, fund) => acc + (fund.current_market_value || 0), 0);
   const absoluteGain = currentValue - totalInvestment;
@@ -203,6 +204,7 @@ function renderSummary(activeFunds) {
   const fundsContainer = document.getElementById('summary-active-funds-container');
 
   if (investmentContainer) {
+    const formattedInvestment = await formatCurrency(totalInvestment);
     investmentContainer.innerHTML = `
       <div class="flex items-center gap-3 mb-3">
         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -210,7 +212,7 @@ function renderSummary(activeFunds) {
         </div>
         <div class="flex-1">
           <p class="text-sm text-gray-400">Total Investment</p>
-          <p class="text-2xl font-bold text-white">${formatCurrency(totalInvestment)}</p>
+          <p class="text-2xl font-bold text-white">${formattedInvestment}</p>
         </div>
       </div>
       <p class="text-xs ${overallReturn >= 0 ? 'text-blue-400' : 'text-red-400'}">${overallReturn.toFixed(2)}% overall return</p>
@@ -218,6 +220,8 @@ function renderSummary(activeFunds) {
   }
   
   if (valueContainer) {
+    const formattedValue = await formatCurrency(currentValue);
+    const formattedGain = await formatCurrency(absoluteGain);
     valueContainer.innerHTML = `
       <div class="flex items-center gap-3 mb-3">
         <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -225,10 +229,10 @@ function renderSummary(activeFunds) {
         </div>
         <div class="flex-1">
           <p class="text-sm text-gray-400">Current Value</p>
-          <p class="text-2xl font-bold text-white">${formatCurrency(currentValue)}</p>
+          <p class="text-2xl font-bold text-white">${formattedValue}</p>
         </div>
       </div>
-      <p class="text-xs ${absoluteGain >= 0 ? 'text-green-400' : 'text-red-400'}">${absoluteGain >= 0 ? '+' : ''}${formatCurrency(absoluteGain)} absolute gain</p>
+      <p class="text-xs ${absoluteGain >= 0 ? 'text-green-400' : 'text-red-400'}">${absoluteGain >= 0 ? '+' : ''}${formattedGain} absolute gain</p>
     `;
   }
 
@@ -346,6 +350,12 @@ async function renderActiveFunds(funds) {
       currentPrice = fund.current_market_value / fund.units_held;
     }
     
+    // Format all currency values
+    const formattedCurrentPrice = await formatCurrency(currentPrice);
+    const formattedTotalInvestment = await formatCurrency(fund.total_investment);
+    const formattedCurrentValue = await formatCurrency(fund.current_market_value);
+    const formattedGainLoss = await formatCurrency(fund.gain_loss);
+    
     const desktopRow = `
       <tr class="border-b border-gray-700" 
           data-name="${fund.fund_name}" 
@@ -363,10 +373,10 @@ async function renderActiveFunds(funds) {
           </div>
         </td>
         <td class="px-3 py-4 text-sm text-white">${fund.units_held.toFixed(4)}</td>
-        <td class="px-3 py-4 text-sm text-white">${formatCurrency(currentPrice)}</td>
-        <td class="px-3 py-4 text-sm text-white">${formatCurrency(fund.total_investment)}</td>
-        <td class="px-3 py-4 text-sm text-white">${formatCurrency(fund.current_market_value)}</td>
-        <td class="px-3 py-4 text-sm ${gainLossClass}">${gainLossSign}${formatCurrency(fund.gain_loss)}</td>
+        <td class="px-3 py-4 text-sm text-white">${formattedCurrentPrice}</td>
+        <td class="px-3 py-4 text-sm text-white">${formattedTotalInvestment}</td>
+        <td class="px-3 py-4 text-sm text-white">${formattedCurrentValue}</td>
+        <td class="px-3 py-4 text-sm ${gainLossClass}">${gainLossSign}${formattedGainLoss}</td>
         <td class="px-3 py-4 text-sm text-green-400">${fund.interest_rate}%</td>
         <td class="px-3 py-4">
           <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Sell</button>
@@ -393,10 +403,10 @@ async function renderActiveFunds(funds) {
         </div>
         <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div><div class="text-xs text-gray-400">Units Held</div><div class="text-sm text-white font-medium">${fund.units_held.toFixed(4)}</div></div>
-          <div><div class="text-xs text-gray-400">Current Price</div><div class="text-sm text-white font-medium">${formatCurrency(currentPrice)}</div></div>
-          <div><div class="text-xs text-gray-400">Investment</div><div class="text-sm text-white font-medium">${formatCurrency(fund.total_investment)}</div></div>
-          <div><div class="text-xs text-gray-400">Current Value</div><div class="text-sm text-white font-medium">${formatCurrency(fund.current_market_value)}</div></div>
-          <div><div class="text-xs text-gray-400">Gain/Loss</div><div class="text-sm ${gainLossClass} font-medium">${gainLossSign}${formatCurrency(fund.gain_loss)}</div></div>
+          <div><div class="text-xs text-gray-400">Current Price</div><div class="text-sm text-white font-medium">${formattedCurrentPrice}</div></div>
+          <div><div class="text-xs text-gray-400">Investment</div><div class="text-sm text-white font-medium">${formattedTotalInvestment}</div></div>
+          <div><div class="text-xs text-gray-400">Current Value</div><div class="text-sm text-white font-medium">${formattedCurrentValue}</div></div>
+          <div><div class="text-xs text-gray-400">Gain/Loss</div><div class="text-sm ${gainLossClass} font-medium">${gainLossSign}${formattedGainLoss}</div></div>
           <div><div class="text-xs text-gray-400">Interest Rate</div><div class="text-sm text-green-400 font-medium">${fund.interest_rate}%</div></div>
         </div>
       </div>
@@ -413,7 +423,7 @@ async function renderActiveFunds(funds) {
   });
 }
 
-function renderTransactionHistory(history) {
+async function renderTransactionHistory(history) {
     const desktopBody = document.getElementById('transaction-history-tbody-desktop');
     const mobileContainer = document.getElementById('transaction-history-cards');
     if (!desktopBody || !mobileContainer) return;
@@ -428,20 +438,24 @@ function renderTransactionHistory(history) {
         return;
     }
     
-    history.forEach(tx => {
+    // Process transactions with async currency formatting
+    for (const tx of history) {
         const typeClass = tx.type === 'Buy' ? 'text-green-400' : 'text-red-400';
+        const formattedPrice = await formatCurrency(tx.price_at_transaction);
+        const formattedTotal = await formatCurrency(tx.total_amount);
+        
         const row = `
             <tr class="border-b border-gray-700">
                 <td class="px-3 py-4 text-sm text-white">${new Date(tx.date).toLocaleDateString()}</td>
                 <td class="px-3 py-4 text-sm text-white">${tx.fund_name}</td>
                 <td class="px-3 py-4 text-sm ${typeClass}">${tx.type}</td>
                 <td class="px-3 py-4 text-sm text-white">${tx.units.toFixed(4)}</td>
-                <td class="px-3 py-4 text-sm text-white">${formatCurrency(tx.price_at_transaction)}</td>
-                <td class="px-3 py-4 text-sm text-white">${formatCurrency(tx.total_amount)}</td>
+                <td class="px-3 py-4 text-sm text-white">${formattedPrice}</td>
+                <td class="px-3 py-4 text-sm text-white">${formattedTotal}</td>
             </tr>
         `;
         desktopBody.insertAdjacentHTML('beforeend', row);
-    });
+    }
 }
 
 function renderSoldHistory(history) {
@@ -525,14 +539,14 @@ function setupEventListeners() {
     const cancelTransactionBtn = document.getElementById('cancel-transaction');
     const successDoneBtn = document.getElementById('success-done-btn');
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
         const button = e.target.closest('button');
         if (!button) return;
         const buttonText = button.textContent.trim();
         if (buttonText === 'Buy' || buttonText === 'Sell') {
             e.preventDefault();
             const fundCard = button.closest('.fund-card, .border-b.border-gray-700, .bg-gray-700.rounded-lg');
-            if (fundCard) openTransactionModal(fundCard, buttonText);
+            if (fundCard) await openTransactionModal(fundCard, buttonText);
         }
     });
 
@@ -561,9 +575,9 @@ function setupEventListeners() {
     const transactionForm = document.getElementById('transaction-form');
     if(transactionForm) transactionForm.addEventListener('submit', handleTransactionSubmit);
     
-    document.querySelectorAll('input[name="investment-type"]').forEach(radio => radio.addEventListener('change', updateCalculations));
-    document.getElementById('amount-input')?.addEventListener('input', updateCalculations);
-    document.getElementById('units-input')?.addEventListener('input', updateCalculations);
+    document.querySelectorAll('input[name="investment-type"]').forEach(radio => radio.addEventListener('change', () => updateCalculations()));
+    document.getElementById('amount-input')?.addEventListener('input', () => updateCalculations());
+    document.getElementById('units-input')?.addEventListener('input', () => updateCalculations());
     document.querySelectorAll('input[name="transaction-type"]').forEach(radio => {
         radio.addEventListener('change', () => {
             updateCalculations();
@@ -577,23 +591,23 @@ function setupEventListeners() {
     const unitsInput = document.getElementById('units-input');
 
     if (maxAmountBtn) {
-        maxAmountBtn.addEventListener('click', () => {
+        maxAmountBtn.addEventListener('click', async () => {
             const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
             const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
             if (maxUnits > 0 && price > 0) {
                 const maxAmount = maxUnits * price;
                 amountInput.value = maxAmount.toFixed(2);
-                updateCalculations();
+                await updateCalculations();
             }
         });
     }
 
     if (maxUnitsBtn) {
-        maxUnitsBtn.addEventListener('click', () => {
+        maxUnitsBtn.addEventListener('click', async () => {
             const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
             if (maxUnits > 0) {
                 unitsInput.value = maxUnits;
-                updateCalculations();
+                await updateCalculations();
             }
         });
     }
@@ -611,7 +625,7 @@ function toggleMaxButtons() {
     if (maxUnitsBtn) maxUnitsBtn.classList.toggle('flex', shouldShow);
 }
 
-function openTransactionModal(fundCard, transactionType) {
+async function openTransactionModal(fundCard, transactionType) {
     let fundName, fundCode, fundPrice, fundInterest, iconSvg;
 
     const isPortfolioContext = fundCard.matches('tr') || (fundCard.dataset.unitsHeld && parseFloat(fundCard.dataset.unitsHeld) > 0);
@@ -680,7 +694,7 @@ function openTransactionModal(fundCard, transactionType) {
     if (radioButton) radioButton.checked = true;
     
     toggleMaxButtons();
-    updateCalculations();
+    await updateCalculations();
     document.getElementById('transaction-modal').classList.remove('hidden');
 }
 
@@ -722,14 +736,21 @@ async function handleTransactionSubmit(e) {
             availableUnitsSpan.parentElement.classList.add('hidden');
         }
         e.target.reset();
-        showSuccessModal(transactionType, cryptoSymbol, units, result);
+        await showSuccessModal(transactionType, cryptoSymbol, units, result);
     } else {
         Toastify({ text: result.message, duration: 3000, className: 'toast-error' }).showToast();
     }
 }
 
-function showSuccessModal(type, symbol, units, result) {
+async function showSuccessModal(type, symbol, units, result) {
     const unitsFormatted = `${units.toFixed(4)} ${symbol}`;
+    
+    // Format currency values
+    const formattedPurchasePrice = await formatCurrency(result.purchase_price);
+    const formattedFiatSpent = await formatCurrency(result.fiat_spent);
+    const formattedSellPrice = await formatCurrency(result.sell_price);
+    const formattedFiatReceived = await formatCurrency(result.fiat_received);
+    
     if (type === 'buy') {
         document.getElementById('success-title').textContent = 'Purchase Successful!';
         document.getElementById('success-message').innerHTML = `You have successfully purchased <strong class="text-white">${unitsFormatted}</strong>.`;
@@ -737,8 +758,8 @@ function showSuccessModal(type, symbol, units, result) {
         document.getElementById('summary-price-label').textContent = 'Price per Token:';
         document.getElementById('summary-cost-label').textContent = 'Total Cost:';
         document.getElementById('summary-amount').textContent = unitsFormatted;
-        document.getElementById('summary-price').textContent = `$${result.purchase_price.toFixed(2)}`;
-        document.getElementById('summary-cost').textContent = `$${result.fiat_spent.toFixed(2)}`;
+        document.getElementById('summary-price').textContent = formattedPurchasePrice;
+        document.getElementById('summary-cost').textContent = formattedFiatSpent;
     } else {
         document.getElementById('success-title').textContent = 'Sale Successful!';
         document.getElementById('success-message').innerHTML = `You have successfully sold <strong class="text-white">${unitsFormatted}</strong>.`;
@@ -746,14 +767,14 @@ function showSuccessModal(type, symbol, units, result) {
         document.getElementById('summary-price-label').textContent = 'Price per Token:';
         document.getElementById('summary-cost-label').textContent = 'Total Received:';
         document.getElementById('summary-amount').textContent = unitsFormatted;
-        document.getElementById('summary-price').textContent = `$${result.sell_price.toFixed(2)}`;
-        document.getElementById('summary-cost').textContent = `$${result.fiat_received.toFixed(2)}`;
+        document.getElementById('summary-price').textContent = formattedSellPrice;
+        document.getElementById('summary-cost').textContent = formattedFiatReceived;
     }
     document.getElementById('success-overlay').classList.remove('hidden');
 }
 
 
-function updateCalculations() {
+async function updateCalculations() {
     const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
     const cryptoSymbol = document.getElementById('fund-code').textContent.trim();
     const investmentType = document.querySelector('input[name="investment-type"]:checked').value;
@@ -790,7 +811,10 @@ function updateCalculations() {
     }
 
     document.getElementById('estimated-units').textContent = `${units.toFixed(8)} ${cryptoSymbol}`;
-    document.getElementById('total-amount').textContent = `$${amount.toFixed(2)}`;
+    
+    // Format amount with session currency
+    const formattedAmount = await formatCurrency(amount);
+    document.getElementById('total-amount').textContent = formattedAmount;
     
     if (transactionType === 'buy') {
         document.getElementById('estimated-units-label').textContent = 'You will get:';

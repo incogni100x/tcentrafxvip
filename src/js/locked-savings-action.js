@@ -1,5 +1,6 @@
 import { supabase } from './client.js';
 import Toastify from 'toastify-js';
+import { formatCurrency } from './session.js';
 
 // DOM Elements for the modal
 const createSavingModal = document.getElementById('create-saving-modal');
@@ -41,24 +42,16 @@ const earlyCloseXBtn = document.getElementById('early-close-info-modal-close-x')
 let allPlans = [];
 let activeSavings = [];
 
-let userCurrency = 'USD';
 
-function formatCurrency(amount, currencyCode = userCurrency) {
-    if (typeof amount !== 'number') {
-        amount = 0;
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(amount);
-}
-
-function showModal(plan) {
+async function showModal(plan) {
     if (!plan || !createSavingModal) return;
 
     modalPlanName.textContent = plan.plan_name;
     modalPlanId.value = plan.id;
     modalPlanDuration.textContent = `${plan.min_months}-${plan.max_months} months`;
     modalPlanInterest.textContent = `${plan.weekly_interest_rate}%`;
-    const maxAmountText = plan.max_amount ? formatCurrency(plan.max_amount) : 'No Limit';
-    modalPlanRange.textContent = `${formatCurrency(plan.min_amount)} - ${maxAmountText}`;
+    const maxAmountText = plan.max_amount ? await await formatCurrency(plan.max_amount) : 'No Limit';
+    modalPlanRange.textContent = `${await await formatCurrency(plan.min_amount)} - ${maxAmountText}`;
     modalAmountInput.min = plan.min_amount;
     if (plan.max_amount) modalAmountInput.max = plan.max_amount;
     modalAmountInput.value = '';
@@ -101,8 +94,8 @@ async function handleFormSubmit(event) {
 
     // Validate amount
     if (isNaN(amount) || amount < plan.min_amount || (plan.max_amount && amount > plan.max_amount)) {
-        const maxText = plan.max_amount ? formatCurrency(plan.max_amount) : 'unlimited';
-        modalAmountError.textContent = `Enter an amount between ${formatCurrency(plan.min_amount)} and ${maxText}.`;
+        const maxText = plan.max_amount ? await formatCurrency(plan.max_amount) : 'unlimited';
+        modalAmountError.textContent = `Enter an amount between ${await formatCurrency(plan.min_amount)} and ${maxText}.`;
         confirmButton.disabled = false;
         return;
     }
@@ -161,9 +154,9 @@ async function handleFormSubmit(event) {
             const { data: profile } = await supabase.from('profiles').select('cash_balance').single();
             const available = profile ? profile.cash_balance : 0;
             
-            document.getElementById('required-amount').textContent = formatCurrency(amount);
-            document.getElementById('available-balance').textContent = formatCurrency(available);
-            document.getElementById('balance-shortfall').textContent = formatCurrency(amount - available);
+            document.getElementById('required-amount').textContent = await formatCurrency(amount);
+            document.getElementById('available-balance').textContent = await formatCurrency(available);
+            document.getElementById('balance-shortfall').textContent = await formatCurrency(amount - available);
             insufficientModal.classList.remove('hidden');
             insufficientModal.classList.add('flex');
             document.getElementById('close-insufficient').onclick = () => {
@@ -190,12 +183,12 @@ function hideEarlyCloseModal() {
 }
 
 // Top-up modal functions
-function showTopupModal(membership) {
+async function showTopupModal(membership) {
     if (!membership || !topupModal) return;
 
     document.getElementById('topup-membership-name').textContent = membership.plan_name;
     document.getElementById('topup-membership-id-display').textContent = `MB-${membership.id.substring(0,8).toUpperCase()}`;
-    document.getElementById('topup-current-amount').textContent = formatCurrency(membership.amount);
+    document.getElementById('topup-current-amount').textContent = await formatCurrency(membership.amount);
     
     topupMembershipId.value = membership.id;
     topupAmountInput.value = '';
@@ -246,7 +239,7 @@ async function handleTopupSubmit(event) {
     if (plan.max_amount) {
         const newTotal = membership.amount + amount;
         if (newTotal > plan.max_amount) {
-            topupAmountError.textContent = `Total amount would exceed plan limit of ${formatCurrency(plan.max_amount)}.`;
+            topupAmountError.textContent = `Total amount would exceed plan limit of ${await formatCurrency(plan.max_amount)}.`;
             topupConfirmButton.disabled = false;
             return;
         }
@@ -281,8 +274,8 @@ async function handleTopupSubmit(event) {
         // Show success modal with details
         const updatedMembership = rpcResponse.data;
         document.getElementById('topup-success-membership-id').textContent = `MB-${membership.id.substring(0,8).toUpperCase()}`;
-        document.getElementById('topup-success-amount').textContent = formatCurrency(amount);
-        document.getElementById('topup-success-new-total').textContent = formatCurrency(updatedMembership.amount);
+        document.getElementById('topup-success-amount').textContent = await formatCurrency(amount);
+        document.getElementById('topup-success-new-total').textContent = await formatCurrency(updatedMembership.amount);
         document.getElementById('topup-success-mode').textContent = topupMode === 'reset' ? 'Reset Timeline' : 'Continue Timeline';
         
         topupSuccessModal.classList.remove('hidden');
@@ -309,9 +302,9 @@ async function handleTopupSubmit(event) {
             const { data: profile } = await supabase.from('profiles').select('cash_balance').single();
             const available = profile ? profile.cash_balance : 0;
             
-            document.getElementById('required-amount').textContent = formatCurrency(amount);
-            document.getElementById('available-balance').textContent = formatCurrency(available);
-            document.getElementById('balance-shortfall').textContent = formatCurrency(amount - available);
+            document.getElementById('required-amount').textContent = await formatCurrency(amount);
+            document.getElementById('available-balance').textContent = await formatCurrency(available);
+            document.getElementById('balance-shortfall').textContent = await formatCurrency(amount - available);
             insufficientModal.classList.remove('hidden');
             insufficientModal.classList.add('flex');
             document.getElementById('close-insufficient').onclick = () => {
@@ -342,7 +335,7 @@ async function checkBalanceAndWarn(amount, isTopup = false) {
         if (amount > available) {
             const actionType = isTopup ? 'top-up' : 'membership creation';
             Toastify({ 
-                text: `Insufficient balance for ${actionType}! You need ${formatCurrency(amount - available)} more.`, 
+                text: `Insufficient balance for ${actionType}! You need ${await formatCurrency(amount - available)} more.`, 
                 duration: 4000, 
                 gravity: "top", 
                 position: "center", 
@@ -362,23 +355,17 @@ export function initializeLockedSavingsActions(plans) {
 
     allPlans = plans;
 
-    // Get user currency
-    supabase.from('profiles').select('currency_code').single().then(({ data }) => {
-        if (data?.currency_code) {
-            userCurrency = data.currency_code;
-        }
-    });
 
     document.querySelectorAll('.select-plan-btn').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const planId = parseInt(button.dataset.planId, 10);
             const selectedPlan = allPlans.find(p => p.id === planId);
-            if(selectedPlan) showModal(selectedPlan);
+            if(selectedPlan) await showModal(selectedPlan);
         });
     });
 
     // Top-up button event listeners (using event delegation for dynamically added buttons)
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
         // Handle both the button and its child elements (span, svg)
         let targetElement = e.target;
         
@@ -390,7 +377,7 @@ export function initializeLockedSavingsActions(plans) {
         if (targetElement && targetElement.classList.contains('topup-btn')) {
             const membershipId = targetElement.dataset.membershipId;
             const membership = activeSavings.find(m => m.id === membershipId);
-            if(membership) showTopupModal(membership);
+            if(membership) await showTopupModal(membership);
         }
     });
 
@@ -423,12 +410,12 @@ export function initializeLockedSavingsActions(plans) {
     }
 }
 
-export function initializeEarlyClosureActions(savings) {
+export async function initializeEarlyClosureActions(savings) {
     if (!earlyCloseInfoModal) return;
     activeSavings = savings;
 
     document.querySelectorAll('.early-closure-btn').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const lockId = button.dataset.lockId;
             const saving = activeSavings.find(s => s.id === lockId);
             if (!saving) return;
@@ -440,12 +427,12 @@ export function initializeEarlyClosureActions(savings) {
             const finalPayout = saving.amount + interestEarned - penaltyAmount;
 
             document.getElementById('info-fd-number').textContent = `MB-${saving.id.substring(0, 8).toUpperCase()}`;
-            document.getElementById('info-fd-principal').textContent = formatCurrency(saving.amount);
+            document.getElementById('info-fd-principal').textContent = await formatCurrency(saving.amount);
             document.getElementById('info-fd-maturity-date').textContent = new Date(saving.end_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             
-            document.getElementById('info-fd-interest-earned').textContent = formatCurrency(interestEarned);
-            document.getElementById('info-fd-penalty').textContent = `- ${formatCurrency(penaltyAmount)}`;
-            document.getElementById('info-fd-final-payout').textContent = formatCurrency(finalPayout);
+            document.getElementById('info-fd-interest-earned').textContent = await formatCurrency(interestEarned);
+            document.getElementById('info-fd-penalty').textContent = `- ${await formatCurrency(penaltyAmount)}`;
+            document.getElementById('info-fd-final-payout').textContent = await formatCurrency(finalPayout);
 
             earlyCloseConfirmBtn.dataset.lockId = lockId; // Pass lock id to confirm button
             earlyCloseInfoModal.classList.remove('hidden');
