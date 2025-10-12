@@ -1,5 +1,5 @@
 import { supabase } from './client.js';
-import { getCurrentUser, formatCurrency } from './session.js';
+import { getCurrentUser, formatCurrency, getCurrencySymbol } from './session.js';
 import Toastify from 'toastify-js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -60,7 +60,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (userInitialsEl) userInitialsEl.textContent = initials;
     
     await loadDepositMethods();
+    await updateCurrencyDisplay();
     setupEventListeners();
+  }
+
+  // --- Currency Display Updates ---
+  async function updateCurrencyDisplay() {
+    const minDeposit = 10;
+    const minDepositText = await formatCurrency(minDeposit);
+    const currencySymbol = await getCurrencySymbol();
+    
+    // Update crypto currency symbol
+    const cryptoCurrencySymbol = document.getElementById('crypto-currency-symbol');
+    if (cryptoCurrencySymbol) {
+      cryptoCurrencySymbol.textContent = currencySymbol;
+    }
+    
+    // Update minimum deposit text
+    const minDepositTextEl = document.getElementById('min-deposit-text');
+    if (minDepositTextEl) {
+      minDepositTextEl.textContent = `Minimum deposit: ${minDepositText}`;
+    }
+    
+    // Update minimum amount warning
+    const minAmountWarning = document.getElementById('min-amount-warning');
+    if (minAmountWarning) {
+      minAmountWarning.textContent = `Minimum deposit: ${minDepositText}`;
+    }
+    
+    // Update bank transfer input symbol
+    const bankInputSymbol = document.getElementById('bank-currency-symbol');
+    if (bankInputSymbol) {
+      bankInputSymbol.textContent = currencySymbol;
+    }
+    
+    // Update bank transfer minimum deposit text
+    const bankMinDepositText = document.getElementById('bank-min-deposit-text');
+    if (bankMinDepositText) {
+      bankMinDepositText.textContent = `Minimum deposit: ${minDepositText}`;
+    }
+    
+    // Update bank important information minimum deposit
+    const bankImportantMinDeposit = document.getElementById('bank-important-min-deposit');
+    if (bankImportantMinDeposit) {
+      bankImportantMinDeposit.textContent = `Minimum deposit: ${minDepositText}`;
+    }
   }
 
   // --- Data Fetching ---

@@ -136,7 +136,7 @@ export async function getUserCurrency() {
  */
 export async function formatCurrency(amount, currencyCode = null) {
   const currency = currencyCode || await getUserCurrency();
-  const symbol = getCurrencySymbol(currency);
+  const symbol = await getCurrencySymbol(currency);
   
   // Format number with proper decimal places
   const formattedNumber = new Intl.NumberFormat('en-US', {
@@ -153,8 +153,8 @@ export async function formatCurrency(amount, currencyCode = null) {
  * @param {string} currencyCode - Optional currency code override
  * @returns {string} Currency symbol (e.g., '$', '€', '£')
  */
-export function getCurrencySymbol(currencyCode = null) {
-  const currency = currencyCode || getUserCurrency();
+export async function getCurrencySymbol(currencyCode = null) {
+  const currency = currencyCode || await getUserCurrency();
   
   // Common currency symbols for better UX (using English symbols, not native)
   const currencySymbols = {

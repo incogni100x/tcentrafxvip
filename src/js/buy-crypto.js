@@ -1,7 +1,7 @@
 import { supabase } from './client.js';
 import { cryptoTokens } from './crypto-tokens.js';
 import { buyCrypto, sellCrypto } from './crypto-actions.js';
-import { getCurrentUser, formatCurrency } from './session.js';
+import { getCurrentUser, formatCurrency, getCurrencySymbol } from './session.js';
 import Toastify from 'toastify-js';
 
 // --- GLOBAL STATE ---
@@ -493,7 +493,26 @@ async function initializePage() {
     const fullName = user.user_metadata?.full_name || 'User';
     const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
     if (userInitialsEl) userInitialsEl.textContent = initials;
+    
+    await updateCurrencyDisplay();
     return true;
+}
+
+// --- Currency Display Updates ---
+async function updateCurrencyDisplay() {
+    const currencySymbol = await getCurrencySymbol();
+    
+    // Update amount input currency symbol
+    const amountCurrencySymbol = document.getElementById('amount-currency-symbol');
+    if (amountCurrencySymbol) {
+        amountCurrencySymbol.textContent = currencySymbol;
+    }
+    
+    // Update amount label
+    const amountLabel = document.getElementById('amount-label');
+    if (amountLabel) {
+        amountLabel.textContent = `Amount (${currencySymbol})`;
+    }
 }
 
 function setupEventListeners() {

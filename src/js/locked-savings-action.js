@@ -1,6 +1,6 @@
 import { supabase } from './client.js';
 import Toastify from 'toastify-js';
-import { formatCurrency } from './session.js';
+import { formatCurrency, getCurrencySymbol } from './session.js';
 
 // DOM Elements for the modal
 const createSavingModal = document.getElementById('create-saving-modal');
@@ -42,6 +42,26 @@ const earlyCloseXBtn = document.getElementById('early-close-info-modal-close-x')
 let allPlans = [];
 let activeSavings = [];
 
+// Function to update currency symbols in modals
+async function updateModalCurrencySymbols() {
+    try {
+        const currencySymbol = await getCurrencySymbol();
+        
+        // Update create savings modal currency symbol
+        const modalCurrencySymbol = document.getElementById('modal-currency-symbol');
+        if (modalCurrencySymbol) {
+            modalCurrencySymbol.textContent = currencySymbol;
+        }
+        
+        // Update top-up modal currency symbol
+        const topupCurrencySymbol = document.getElementById('topup-currency-symbol');
+        if (topupCurrencySymbol) {
+            topupCurrencySymbol.textContent = currencySymbol;
+        }
+    } catch (error) {
+        console.warn('Failed to update modal currency symbols:', error);
+    }
+}
 
 async function showModal(plan) {
     if (!plan || !createSavingModal) return;
@@ -50,8 +70,8 @@ async function showModal(plan) {
     modalPlanId.value = plan.id;
     modalPlanDuration.textContent = `${plan.min_months}-${plan.max_months} months`;
     modalPlanInterest.textContent = `${plan.weekly_interest_rate}%`;
-    const maxAmountText = plan.max_amount ? await await formatCurrency(plan.max_amount) : 'No Limit';
-    modalPlanRange.textContent = `${await await formatCurrency(plan.min_amount)} - ${maxAmountText}`;
+    const maxAmountText = plan.max_amount ? await formatCurrency(plan.max_amount) : 'No Limit';
+    modalPlanRange.textContent = `${await formatCurrency(plan.min_amount)} - ${maxAmountText}`;
     modalAmountInput.min = plan.min_amount;
     if (plan.max_amount) modalAmountInput.max = plan.max_amount;
     modalAmountInput.value = '';
@@ -66,6 +86,9 @@ async function showModal(plan) {
     }
     
     confirmButton.disabled = false;
+    
+    // Update currency symbols
+    await updateModalCurrencySymbols();
     
     createSavingModal.classList.remove('hidden', 'opacity-0');
     createSavingModal.classList.add('flex');
@@ -122,47 +145,66 @@ async function handleFormSubmit(event) {
         });
 
         if (rpcError) throw new Error('A server error occurred during the transaction.');
-        if (!rpcResponse.success) throw new Error(rpcResponse.message);
+        if (!rpcResponse.success) {
+            // Create error object with balance information if available
+            const error = new Error(rpcResponse.message);
+            if (rpcResponse.current_balance !== undefined) {
+                error.current_balance = rpcResponse.current_balance;
+                error.required_amount = rpcResponse.required_amount;
+                error.shortfall = rpcResponse.shortfall;
+            }
+            throw error;
+        }
 
         const newMembership = rpcResponse.data;
         document.getElementById('fd-number').textContent = `MB-${newMembership.id.substring(0, 8).toUpperCase()}`;
-        document.getElementById('fd-principal').textContent = formatCurrency(newMembership.amount);
+        document.getElementById('fd-principal').textContent = await formatCurrency(newMembership.amount);
         document.getElementById('fd-rate').textContent = `${plan.weekly_interest_rate}% weekly`;
         document.getElementById('fd-maturity').textContent = new Date(newMembership.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        document.getElementById('fd-maturity-amount').textContent = formatCurrency(newMembership.amount);
+        document.getElementById('fd-maturity-amount').textContent = await formatCurrency(newMembership.amount);
         successModal.classList.remove('hidden');
         successModal.classList.add('flex');
 
         document.getElementById('close-success').onclick = () => {
             successModal.classList.add('hidden');
             successModal.classList.remove('flex');
-            window.location.reload();
+            // Refresh session data before reloading
+            refreshSessionData().then(() => {
+                window.location.reload();
+            });
         };
         
     } catch (error) {
-        if (error.message.includes('Insufficient')) {
-            // Show toast notification first
-            Toastify({ 
-                text: "Insufficient balance! Please add funds to your account.", 
-                duration: 4000, 
-                gravity: "top", 
-                position: "center", 
-                style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
-            }).showToast();
-
-            // Then show detailed modal
-            const { data: profile } = await supabase.from('profiles').select('cash_balance').single();
-            const available = profile ? profile.cash_balance : 0;
-            
-            document.getElementById('required-amount').textContent = await formatCurrency(amount);
-            document.getElementById('available-balance').textContent = await formatCurrency(available);
-            document.getElementById('balance-shortfall').textContent = await formatCurrency(amount - available);
-            insufficientModal.classList.remove('hidden');
-            insufficientModal.classList.add('flex');
-            document.getElementById('close-insufficient').onclick = () => {
-                insufficientModal.classList.add('hidden');
-                insufficientModal.classList.remove('flex');
-            };
+        console.log('Create membership error:', error.message);
+        // Check for insufficient balance errors
+        if (error.message.includes('Insufficient') || error.message.includes('insufficient') || error.message.includes('balance') || error.message.includes('funds') || error.message.includes('server error')) {
+            // Show insufficient balance modal
+            try {
+                // Try to get balance info from the error response if available
+                let availableBalance = 0;
+                let requiredAmount = amount;
+                
+                // Check if the error has balance information
+                if (error.current_balance !== undefined) {
+                    availableBalance = error.current_balance;
+                    requiredAmount = error.required_amount || amount;
+                } else {
+                    // Use a default balance or show generic message
+                    availableBalance = 0; // Don't make additional DB calls that might fail
+                }
+                
+                await showInsufficientBalanceModal(requiredAmount, availableBalance, false);
+            } catch (modalError) {
+                console.error('Error showing insufficient balance modal:', modalError);
+                // Fallback to toast
+                Toastify({ 
+                    text: "Insufficient balance! Please add funds to your account.", 
+                    duration: 4000, 
+                    gravity: "top", 
+                    position: "center", 
+                    style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
+                }).showToast();
+            }
         } else {
             Toastify({ 
                 text: `Error: ${error.message}`, 
@@ -195,6 +237,9 @@ async function showTopupModal(membership) {
     topupAmountError.textContent = '';
     topupModeSelect.value = 'continue';
     topupConfirmButton.disabled = false;
+    
+    // Update currency symbols
+    await updateModalCurrencySymbols();
     
     topupModal.classList.remove('hidden');
     topupModal.classList.add('flex');
@@ -288,29 +333,34 @@ async function handleTopupSubmit(event) {
         };
         
     } catch (error) {
-        if (error.message.includes('Insufficient')) {
-            // Show toast notification first
-            Toastify({ 
-                text: "Insufficient balance for top-up! Please add funds to your account.", 
-                duration: 4000, 
-                gravity: "top", 
-                position: "center", 
-                style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
-            }).showToast();
-
-            // Then show detailed modal
-            const { data: profile } = await supabase.from('profiles').select('cash_balance').single();
-            const available = profile ? profile.cash_balance : 0;
-            
-            document.getElementById('required-amount').textContent = await formatCurrency(amount);
-            document.getElementById('available-balance').textContent = await formatCurrency(available);
-            document.getElementById('balance-shortfall').textContent = await formatCurrency(amount - available);
-            insufficientModal.classList.remove('hidden');
-            insufficientModal.classList.add('flex');
-            document.getElementById('close-insufficient').onclick = () => {
-                insufficientModal.classList.add('hidden');
-                insufficientModal.classList.remove('flex');
-            };
+        if (error.message.includes('Insufficient') || error.message.includes('insufficient') || error.message.includes('balance') || error.message.includes('funds')) {
+            // Show insufficient balance modal
+            try {
+                // Try to get balance info from the error response if available
+                let availableBalance = 0;
+                let requiredAmount = amount;
+                
+                // Check if the error has balance information
+                if (error.current_balance !== undefined) {
+                    availableBalance = error.current_balance;
+                    requiredAmount = error.required_amount || amount;
+                } else {
+                    // Use a default balance or show generic message
+                    availableBalance = 0; // Don't make additional DB calls that might fail
+                }
+                
+                await showInsufficientBalanceModal(requiredAmount, availableBalance, true);
+            } catch (modalError) {
+                console.error('Error showing insufficient balance modal:', modalError);
+                // Fallback to toast
+                Toastify({ 
+                    text: "Insufficient balance for top-up! Please add funds to your account.", 
+                    duration: 4000, 
+                    gravity: "top", 
+                    position: "center", 
+                    style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
+                }).showToast();
+            }
         } else {
             Toastify({ 
                 text: `Top-up Error: ${error.message}`, 
@@ -326,27 +376,65 @@ async function handleTopupSubmit(event) {
     }
 }
 
-// Function to check user balance and show warning
-async function checkBalanceAndWarn(amount, isTopup = false) {
+// Function to show insufficient balance modal
+async function showInsufficientBalanceModal(requiredAmount, availableBalance, isTopup = false) {
     try {
-        const { data: profile } = await supabase.from('profiles').select('cash_balance').single();
-        const available = profile ? profile.cash_balance : 0;
+        const shortfall = requiredAmount - availableBalance;
         
-        if (amount > available) {
-            const actionType = isTopup ? 'top-up' : 'membership creation';
-            Toastify({ 
-                text: `Insufficient balance for ${actionType}! You need ${await formatCurrency(amount - available)} more.`, 
-                duration: 4000, 
-                gravity: "top", 
-                position: "center", 
-                style: { background: "linear-gradient(to right, #f39c12, #e67e22)" } 
-            }).showToast();
-            return false;
-        }
-        return true;
+        // Update modal content
+        document.getElementById('required-amount').textContent = await formatCurrency(requiredAmount);
+        document.getElementById('available-balance').textContent = await formatCurrency(availableBalance);
+        document.getElementById('balance-shortfall').textContent = await formatCurrency(shortfall);
+        
+        // Update title and description based on action type
+        const title = isTopup ? 'Unable to Top Up Membership' : 'Unable to Create Time Deposits';
+        const description = isTopup 
+            ? 'You don\'t have sufficient balance in your wallet to top up this membership.'
+            : 'You don\'t have sufficient balance in your wallet to create this Time Deposits.';
+        
+        document.querySelector('#insufficient-modal h4').textContent = title;
+        document.querySelector('#insufficient-modal p').textContent = description;
+        
+        // Show modal
+        insufficientModal.classList.remove('hidden');
+        insufficientModal.classList.add('flex');
+        
+        // Set up close button
+        document.getElementById('close-insufficient').onclick = () => {
+            insufficientModal.classList.add('hidden');
+            insufficientModal.classList.remove('flex');
+        };
+        
     } catch (error) {
-        console.error('Error checking balance:', error);
-        return true; // Allow to proceed if balance check fails
+        console.error('Error showing insufficient balance modal:', error);
+        // Fallback to toast if modal fails
+        Toastify({ 
+            text: "Insufficient balance! Please add funds to your account.", 
+            duration: 4000, 
+            gravity: "top", 
+            position: "center", 
+            style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" } 
+        }).showToast();
+    }
+}
+
+// Removed balance checking functions - now using backend response data
+
+// Function to refresh session data
+async function refreshSessionData() {
+    try {
+        // Clear cached profile data
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const cachedProfileKey = `userProfile_${user.id}`;
+            sessionStorage.removeItem(cachedProfileKey);
+            
+            // Re-fetch fresh profile data
+            const { getUserWithProfile } = await import('./session.js');
+            await getUserWithProfile();
+        }
+    } catch (error) {
+        console.error('Error refreshing session data:', error);
     }
 }
 
@@ -395,7 +483,7 @@ export function initializeLockedSavingsActions(plans) {
         modalAmountInput.addEventListener('blur', async () => {
             const amount = parseFloat(modalAmountInput.value);
             if (!isNaN(amount) && amount > 0) {
-                await checkBalanceAndWarn(amount, false);
+                // Balance check removed - backend handles validation
             }
         });
     }
@@ -404,7 +492,7 @@ export function initializeLockedSavingsActions(plans) {
         topupAmountInput.addEventListener('blur', async () => {
             const amount = parseFloat(topupAmountInput.value);
             if (!isNaN(amount) && amount > 0) {
-                await checkBalanceAndWarn(amount, true);
+                // Balance check removed - backend handles validation
             }
         });
     }
@@ -436,6 +524,7 @@ export async function initializeEarlyClosureActions(savings) {
 
             earlyCloseConfirmBtn.dataset.lockId = lockId; // Pass lock id to confirm button
             earlyCloseInfoModal.classList.remove('hidden');
+            earlyCloseInfoModal.classList.add('flex');
         });
     });
 
