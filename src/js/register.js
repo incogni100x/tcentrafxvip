@@ -63,21 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const text = indicator.querySelector('p');
 
       if (step < targetStep) {
-        circle.classList.remove('bg-blue-600', 'bg-gray-700');
-        circle.classList.add('bg-green-600');
+        circle.classList.remove('bg-[#009296]', 'bg-gray-200');
+        circle.classList.add('bg-[#009296]');
         circle.innerHTML = `<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
         text.classList.remove('text-gray-500');
-        text.classList.add('text-green-400');
+        text.classList.add('text-[#009296]');
       } else if (step === targetStep) {
-        circle.classList.remove('bg-gray-700', 'bg-green-600');
-        circle.classList.add('bg-blue-600');
-        text.classList.remove('text-gray-500', 'text-green-400');
-        text.classList.add('text-blue-400');
+        circle.classList.remove('bg-gray-200', 'bg-[#009296]');
+        circle.classList.add('bg-[#009296]');
+        text.classList.remove('text-gray-500', 'text-[#009296]');
+        text.classList.add('text-[#009296]');
         circle.innerHTML = step;
       } else {
-        circle.classList.remove('bg-blue-600', 'bg-green-600');
-        circle.classList.add('bg-gray-700');
-        text.classList.remove('text-blue-400', 'text-green-400');
+        circle.classList.remove('bg-[#009296]');
+        circle.classList.add('bg-gray-200');
+        text.classList.remove('text-[#009296]');
         text.classList.add('text-gray-500');
         circle.innerHTML = step;
       }
@@ -86,11 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
     stepLines.forEach(line => {
       const lineNum = parseInt(line.getAttribute('data-step-line'), 10);
       if (lineNum < targetStep) {
-        line.classList.remove('bg-gray-600', 'bg-gray-700');
-        line.classList.add('bg-green-600');
+        line.classList.remove('bg-gray-300');
+        line.classList.add('bg-[#009296]');
       } else {
-        line.classList.remove('bg-green-600');
-        line.classList.add('bg-gray-600');
+        line.classList.remove('bg-[#009296]');
+        line.classList.add('bg-gray-300');
       }
     });
 
