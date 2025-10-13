@@ -140,43 +140,42 @@ async function renderPage() {
 
         // Create Desktop Row
         const row = document.createElement('tr');
-        row.className = 'border-b border-gray-700 hover:bg-gray-700/50 transition-colors';
+        row.className = 'border-b border-gray-200';
         row.innerHTML = `
-            <td class="px-6 py-4"><div class="font-medium text-white">${truncatedId}</div></td>
-            <td class="px-6 py-4"><div class="flex items-center gap-2">${typeIcon.replace(/w-8 h-8/, 'w-6 h-6')} <span class="text-white">${displayType}</span></div></td>
-            <td class="px-6 py-4 text-gray-300">${formattedDetails}</td>
-            <td class="px-6 py-4"><div class="text-white">${displayDate}</div><div class="text-xs text-gray-400">${time}</div></td>
+            <td class="px-6 py-4"><div class="font-medium text-gray-900">${truncatedId}</div></td>
+            <td class="px-6 py-4"><div class="flex items-center gap-2">${typeIcon.replace(/w-8 h-8/, 'w-6 h-6')} <span class="text-gray-900">${displayType}</span></div></td>
+            <td class="px-6 py-4 text-gray-600">${formattedDetails}</td>
+            <td class="px-6 py-4"><div class="text-gray-900">${displayDate}</div><div class="text-xs text-gray-500">${time}</div></td>
             <td class="px-6 py-4"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge}">${tx.status}</span></td>
-            <td class="px-6 py-4"><div class="font-medium ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</div></td>
-            <td class="px-6 py-4"><button class="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button></td>
+            <td class="px-6 py-4"><div class="font-medium ${isDeposit ? 'text-green-600' : 'text-red-600'}">${formattedAmount}</div></td>
         `;
         desktopTbody.appendChild(row);
 
         // Create Mobile Card
         const card = document.createElement('div');
-        card.className = 'bg-gray-700 rounded-lg p-4';
+        card.className = 'bg-white border border-gray-200 rounded-lg p-4';
         card.innerHTML = `
             <div class="flex justify-between items-start mb-3">
                 <div class="flex items-center gap-3">
                     ${typeIcon}
                     <div>
-                        <div class="font-semibold text-white text-base">${displayType}</div>
-                        <div class="text-xs text-gray-400">${truncatedId}</div>
+                        <div class="font-semibold text-gray-900 text-base">${displayType}</div>
+                        <div class="text-xs text-gray-500">${truncatedId}</div>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-lg font-semibold ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</div>
+                    <div class="text-lg font-semibold ${isDeposit ? 'text-green-600' : 'text-red-600'}">${formattedAmount}</div>
                     <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium ${badge}">${tx.status}</span>
                 </div>
             </div>
-            <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <div class="border-t border-gray-200 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div>
-                    <div class="text-xs text-gray-400">${tx.transaction_type.toLowerCase() === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
-                    <div class="text-sm text-white font-medium">${formattedDetails}</div>
+                    <div class="text-xs text-gray-500">${tx.transaction_type.toLowerCase() === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
+                    <div class="text-sm text-gray-900 font-medium">${formattedDetails}</div>
                 </div>
                 <div>
-                    <div class="text-xs text-gray-400">Date</div>
-                    <div class="text-sm text-white font-medium">${displayDate}</div>
+                    <div class="text-xs text-gray-500">Date</div>
+                    <div class="text-sm text-gray-900 font-medium">${displayDate}</div>
                 </div>
             </div>
         `;
@@ -199,22 +198,22 @@ function renderPagination(countContainer, paginationContainer) {
 
     countContainer.innerHTML = `
         <span>Showing</span>
-        <span class="text-white font-medium">${startItem}-${endItem}</span>
+        <span class="text-gray-900 font-medium">${startItem}-${endItem}</span>
         <span>of</span>
-        <span class="text-white font-medium">${totalItems}</span>
+        <span class="text-gray-900 font-medium">${totalItems}</span>
         <span>transactions</span>
     `;
 
     paginationContainer.innerHTML = `
-        <div class="text-sm text-gray-400 lg:hidden">
-            Showing <span class="text-white font-medium">${startItem}</span> to <span class="text-white font-medium">${endItem}</span> of <span class="text-white font-medium">${totalItems}</span> results
+        <div class="text-sm text-gray-500 lg:hidden">
+            Showing <span class="text-gray-900 font-medium">${startItem}</span> to <span class="text-gray-900 font-medium">${endItem}</span> of <span class="text-gray-900 font-medium">${totalItems}</span> results
         </div>
         <div class="flex items-center gap-2">
-            <button id="prev-page" class="px-3 py-2 text-sm border border-gray-600 text-gray-400 rounded-md hover:bg-gray-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage === 1 ? 'disabled' : ''}>
+            <button id="prev-page" class="px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage === 1 ? 'disabled' : ''}>
                 Previous
             </button>
-            <span class="text-sm text-gray-400 hidden sm:inline">Page ${currentPage} of ${totalPages}</span>
-            <button id="next-page" class="px-3 py-2 text-sm border border-gray-600 text-gray-400 rounded-md hover:bg-gray-700 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage === totalPages ? 'disabled' : ''}>
+            <span class="text-sm text-gray-500 hidden sm:inline">Page ${currentPage} of ${totalPages}</span>
+            <button id="next-page" class="px-3 py-2 text-sm border border-gray-300 text-gray-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage === totalPages ? 'disabled' : ''}>
                 Next
             </button>
         </div>

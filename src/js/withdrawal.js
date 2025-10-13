@@ -97,7 +97,7 @@ export async function initializeWithdrawalPage() {
             case 'rejected':
                 return `<span class="${baseClasses} bg-red-900 text-red-300">Rejected</span>`;
             default:
-                return `<span class="${baseClasses} bg-gray-700 text-gray-300">${status}</span>`;
+                return `<span class="${baseClasses} bg-gray-100 text-gray-600">${status}</span>`;
         }
     };
 
@@ -156,7 +156,7 @@ export async function initializeWithdrawalPage() {
             cardsContainer.innerHTML = '';
 
             if (data.length === 0) {
-                const emptyMessage = `<div class="text-center py-8 text-gray-400">No recent withdrawals found.</div>`;
+                const emptyMessage = `<div class="text-center py-8 text-gray-600">No recent withdrawals found.</div>`;
                 tableBody.innerHTML = `<tr><td colspan="5">${emptyMessage}</td></tr>`;
                 cardsContainer.innerHTML = emptyMessage;
             } else {
@@ -183,12 +183,12 @@ export async function initializeWithdrawalPage() {
 
                     // Create mobile card
                     const card = `
-                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
                             <div class="flex justify-between items-center mb-3">
                                 <div class="font-mono text-sm">${shortId}</div>
                                 <div class="font-semibold">${formattedAmount}</div>
                             </div>
-                            <div class="flex justify-between items-center text-sm text-gray-400">
+                            <div class="flex justify-between items-center text-sm text-gray-600">
                                 <span>${methodDisplay}</span>
                                 ${statusBadge}
                             </div>

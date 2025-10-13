@@ -10,15 +10,15 @@ async function renderCashBalanceCard(balance) {
   const formattedBalance = await formatCurrency(balance);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 lg:w-8 lg:h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-green-600"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+      <div class="w-6 h-6 lg:w-5 lg:h-5 flex items-center justify-center flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 lg:w-5 lg:h-5 text-green-600"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
       </div>
       <div class="flex-1">
-        <p class="text-sm text-gray-400">Cash Balance</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formattedBalance}</p>
+        <p class="text-sm text-gray-600">Cash Balance</p>
+        <p class="text-2xl lg:text-xl font-bold text-gray-900">${formattedBalance}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">Available for trading</p>
+    <p class="text-xs text-gray-600">Available for trading</p>
   `;
 }
 
@@ -28,15 +28,15 @@ async function renderCryptoValueCard(value) {
   const formattedValue = await formatCurrency(value);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 lg:w-8 lg:h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-blue-600"><path d="M9 5v4"/><rect width="4" height="6" x="7" y="9" rx="1"/><path d="M9 15v2"/><path d="M17 3v2"/><rect width="4" height="8" x="15" y="5" rx="1"/><path d="M17 13v3"/><path d="M3 3v16a2 2 0 0 0 2 2h16"/></svg>
+      <div class="w-6 h-6 lg:w-5 lg:h-5 flex items-center justify-center flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 lg:w-5 lg:h-5 text-blue-600"><path d="M9 5v4"/><rect width="4" height="6" x="7" y="9" rx="1"/><path d="M9 15v2"/><path d="M17 3v2"/><rect width="4" height="8" x="15" y="5" rx="1"/><path d="M17 13v3"/><path d="M3 3v16a2 2 0 0 0 2 2h16"/></svg>
       </div>
       <div class="flex-1">
-        <p class="text-sm text-gray-400">Crypto Value</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formattedValue}</p>
+        <p class="text-sm text-gray-600">Crypto Value</p>
+        <p class="text-2xl lg:text-xl font-bold text-gray-900">${formattedValue}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">Current market value</p>
+    <p class="text-xs text-gray-600">Current market value</p>
   `;
 }
 
@@ -52,15 +52,15 @@ async function renderMembershipCard(value, membershipSummary) {
   
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 lg:w-8 lg:h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-yellow-600"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      <div class="w-6 h-6 lg:w-5 lg:h-5 flex items-center justify-center flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 lg:w-5 lg:h-5 text-yellow-600"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
       </div>
       <div class="flex-1">
-        <p class="text-sm text-gray-400">Membership Plans</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formattedValue}</p>
+        <p class="text-sm text-gray-600">Membership Plans</p>
+        <p class="text-2xl lg:text-xl font-bold text-gray-900">${formattedValue}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">${activeCount} active • ${formattedInterest} earned</p>
+    <p class="text-xs text-gray-600">${activeCount} active • ${formattedInterest} earned</p>
   `;
 }
 
@@ -71,15 +71,15 @@ async function renderTotalBalanceCard(cash, crypto, savings) {
   const formattedTotal = await formatCurrency(total);
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 lg:w-8 lg:h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lg:w-4 lg:h-4 text-purple-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+      <div class="w-6 h-6 lg:w-5 lg:h-5 flex items-center justify-center flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 lg:w-5 lg:h-5 text-purple-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
       </div>
       <div class="flex-1">
-        <p class="text-sm text-gray-400">Total Balance</p>
-        <p class="text-2xl lg:text-xl font-bold text-white">${formattedTotal}</p>
+        <p class="text-sm text-gray-600">Total Balance</p>
+        <p class="text-2xl lg:text-xl font-bold text-gray-900">${formattedTotal}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-400">Entire portfolio value</p>
+    <p class="text-xs text-gray-600">Entire portfolio value</p>
   `;
 }
 

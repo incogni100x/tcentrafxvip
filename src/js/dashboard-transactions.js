@@ -95,12 +95,12 @@ async function renderRecentTransactions() {
 
             // Create Desktop Row
             const row = document.createElement('tr');
-            row.className = 'border-b border-gray-700/50 hover:bg-gray-700/50';
+            row.className = 'border-b border-gray-200';
             row.innerHTML = `
-                <td class="px-3 py-4 text-sm text-white">${displayType}</td>
-                <td class="px-3 py-4 text-sm text-gray-300">${formattedDetails}</td>
-                <td class="px-3 py-4 text-sm text-gray-400">${displayDate}</td>
-                <td class="px-3 py-4 text-sm font-medium ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${displayType}</td>
+                <td class="px-3 py-4 text-sm text-gray-600">${formattedDetails}</td>
+                <td class="px-3 py-4 text-sm text-gray-500">${displayDate}</td>
+                <td class="px-3 py-4 text-sm font-medium ${isDeposit ? 'text-green-600' : 'text-red-600'}">${formattedAmount}</td>
                 <td class="px-3 py-4 text-sm">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge}">${tx.status}</span>
                 </td>
@@ -109,29 +109,29 @@ async function renderRecentTransactions() {
 
             // Create Mobile Card
             const card = document.createElement('div');
-            card.className = 'bg-gray-700/50 rounded-lg p-4';
+            card.className = 'bg-white border border-gray-200 rounded-lg p-4';
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-3">
                     <div class="flex items-center gap-3">
                         ${typeIcon}
                         <div>
-                            <div class="font-semibold text-white text-base">${displayType}</div>
-                            <div class="text-xs text-gray-400">${truncatedId}</div>
+                            <div class="font-semibold text-gray-900 text-base">${displayType}</div>
+                            <div class="text-xs text-gray-500">${truncatedId}</div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <div class="text-lg font-semibold ${isDeposit ? 'text-green-400' : 'text-red-400'}">${formattedAmount}</div>
+                        <div class="text-lg font-semibold ${isDeposit ? 'text-green-600' : 'text-red-600'}">${formattedAmount}</div>
                         <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium ${badge}">${tx.status}</span>
                     </div>
                 </div>
-                <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div class="border-t border-gray-200 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <div>
-                        <div class="text-xs text-gray-400">${tx.transaction_type.toLowerCase() === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
-                        <div class="text-sm text-white font-medium">${formattedDetails}</div>
+                        <div class="text-xs text-gray-500">${tx.transaction_type.toLowerCase() === 'withdrawal' ? 'Beneficiary' : 'Method'}</div>
+                        <div class="text-sm text-gray-900 font-medium">${formattedDetails}</div>
                     </div>
                     <div>
-                        <div class="text-xs text-gray-400">Date</div>
-                        <div class="text-sm text-white font-medium">${displayDate}</div>
+                        <div class="text-xs text-gray-500">Date</div>
+                        <div class="text-sm text-gray-900 font-medium">${displayDate}</div>
                     </div>
                 </div>
             `;

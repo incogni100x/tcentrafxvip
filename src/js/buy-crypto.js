@@ -14,7 +14,7 @@ function renderCryptoCardSkeletons() {
     container.innerHTML = ''; 
 
     const skeletonCard = `
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 fund-card">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 fund-card">
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2 w-full">
                 <div class="skeleton w-10 h-10 rounded-full shrink-0"></div>
@@ -85,7 +85,7 @@ async function createCryptoCard(token, backendData, userFund = null) {
     const { static_price, interest_rate } = backendData;
     
     const iconUrl = `/assets/icons/crypto/${symbol.toUpperCase()}.svg`;
-    let iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; // Fallback
+    let iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; // Fallback
     
     try {
         const response = await fetch(iconUrl);
@@ -106,11 +106,11 @@ async function createCryptoCard(token, backendData, userFund = null) {
     const hasFund = userFund !== null;
     const sellButtonDisabled = !hasFund ? 'disabled' : '';
     const sellButtonClasses = !hasFund 
-        ? 'border-gray-700 text-gray-500 cursor-not-allowed' 
-        : 'border-gray-600 text-white hover:bg-gray-700';
+        ? 'border-gray-200 text-gray-500 cursor-not-allowed' 
+        : 'border-gray-300 text-gray-900 hover:bg-gray-100';
 
     const card = document.createElement('div');
-    card.className = 'bg-gray-800 border border-gray-700 rounded-lg p-4 fund-card';
+    card.className = 'bg-white border border-gray-200 rounded-lg p-4 fund-card';
 
     if (hasFund) {
         let currentPrice = userFund.current_price;
@@ -130,29 +130,29 @@ async function createCryptoCard(token, backendData, userFund = null) {
     card.innerHTML = `
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                     ${iconSvg}
                 </div>
                 <div>
-                    <h3 class="font-semibold text-white text-base">${name}</h3>
-                    <div class="text-xs text-gray-400">${symbol}</div>
+                    <h3 class="font-semibold text-gray-900 text-base">${name}</h3>
+                    <div class="text-xs text-gray-500">${symbol}</div>
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-lg font-semibold text-white">${formattedPrice}</div>
+                <div class="text-lg font-semibold text-gray-900">${formattedPrice}</div>
             </div>
         </div>
         <div class="mb-4">
             <div class="flex justify-between items-center mb-1">
-                <span class="text-xs text-gray-400">Guaranteed Interest Rate</span>
+                <span class="text-xs text-gray-500">Guaranteed Interest Rate</span>
                 <span class="text-sm font-semibold text-green-400">${interest_rate}%</span>
             </div>
-            <div class="w-full bg-gray-700 rounded-full h-2">
+            <div class="w-full bg-gray-100 rounded-full h-2">
                 <div class="bg-green-500 h-2 rounded-full" style="width: ${interest_rate}%"></div>
             </div>
         </div>
         <div class="flex gap-2">
-            <button class="flex-1 bg-blue-600 text-white py-2.5 sm:py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">Buy</button>
+            <button class="flex-1 bg-[#009296] text-white py-2.5 sm:py-2 rounded-md hover:bg-[#007a7e] transition-colors text-sm font-medium">Buy</button>
             <button class="flex-1 border ${sellButtonClasses} py-2.5 sm:py-2 rounded-md transition-colors text-sm font-medium" ${sellButtonDisabled}>Sell</button>
         </div>
     `;
@@ -207,15 +207,15 @@ async function renderSummary(activeFunds) {
     const formattedInvestment = await formatCurrency(totalInvestment);
     investmentContainer.innerHTML = `
       <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-blue-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+        <div class="w-10 h-10 bg-[#009296]/10 rounded-lg flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-[#009296]"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
         </div>
         <div class="flex-1">
-          <p class="text-sm text-gray-400">Total Investment</p>
-          <p class="text-2xl font-bold text-white">${formattedInvestment}</p>
+          <p class="text-sm text-gray-500">Total Investment</p>
+          <p class="text-2xl font-bold text-gray-900">${formattedInvestment}</p>
         </div>
       </div>
-      <p class="text-xs ${overallReturn >= 0 ? 'text-blue-400' : 'text-red-400'}">${overallReturn.toFixed(2)}% overall return</p>
+      <p class="text-xs ${overallReturn >= 0 ? 'text-[#009296]' : 'text-red-400'}">${overallReturn.toFixed(2)}% overall return</p>
     `;
   }
   
@@ -228,8 +228,8 @@ async function renderSummary(activeFunds) {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-green-600"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <div class="flex-1">
-          <p class="text-sm text-gray-400">Current Value</p>
-          <p class="text-2xl font-bold text-white">${formattedValue}</p>
+          <p class="text-sm text-gray-500">Current Value</p>
+          <p class="text-2xl font-bold text-gray-900">${formattedValue}</p>
         </div>
       </div>
       <p class="text-xs ${absoluteGain >= 0 ? 'text-green-400' : 'text-red-400'}">${absoluteGain >= 0 ? '+' : ''}${formattedGain} absolute gain</p>
@@ -243,11 +243,11 @@ async function renderSummary(activeFunds) {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-purple-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
         </div>
         <div class="flex-1">
-          <p class="text-sm text-gray-400">Active Funds</p>
-          <p class="text-2xl font-bold text-white">${activeFunds.length}</p>
+          <p class="text-sm text-gray-500">Active Funds</p>
+          <p class="text-2xl font-bold text-gray-900">${activeFunds.length}</p>
         </div>
       </div>
-      <p class="text-xs text-gray-400">View details below</p>
+      <p class="text-xs text-gray-500">View details below</p>
     `;
   }
 }
@@ -282,7 +282,7 @@ function renderActiveFundsSkeleton() {
   `;
 
   const skeletonMobileCard = `
-    <div class="bg-gray-700 rounded-lg p-4">
+    <div class="bg-gray-100 rounded-lg p-4">
         <div class="flex justify-between items-start mb-4">
             <div class="flex items-center gap-3 w-full">
                 <div class="skeleton w-10 h-10 rounded-full shrink-0"></div>
@@ -292,7 +292,7 @@ function renderActiveFundsSkeleton() {
                 </div>
             </div>
         </div>
-        <div class="border-t border-gray-600 pt-4 grid grid-cols-2 gap-4">
+        <div class="border-t border-gray-300 pt-4 grid grid-cols-2 gap-4">
             <div class="space-y-2"><div class="skeleton h-3 w-16"></div><div class="skeleton h-4 w-20"></div></div>
             <div class="space-y-2"><div class="skeleton h-3 w-12"></div><div class="skeleton h-4 w-16"></div></div>
             <div class="space-y-2"><div class="skeleton h-3 w-20"></div><div class="skeleton h-4 w-24"></div></div>
@@ -324,7 +324,7 @@ async function renderActiveFunds(funds) {
 
   const fundPromises = funds.map(async (fund) => {
     const iconUrl = `/assets/icons/crypto/${fund.crypto_symbol.toUpperCase()}.svg`;
-    let iconHtml = `<div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">${fund.crypto_symbol.charAt(0)}</div>`;
+    let iconHtml = `<div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 font-bold">${fund.crypto_symbol.charAt(0)}</div>`;
 
     try {
       const response = await fetch(iconUrl);
@@ -335,7 +335,7 @@ async function renderActiveFunds(funds) {
         const svgElement = tempDiv.firstChild;
         if (svgElement && svgElement.tagName && svgElement.tagName.toLowerCase() === 'svg') {
           svgElement.setAttribute('class', 'w-6 h-6');
-          iconHtml = `<div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">${svgElement.outerHTML}</div>`;
+          iconHtml = `<div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">${svgElement.outerHTML}</div>`;
         }
       }
     } catch (e) {
@@ -357,7 +357,7 @@ async function renderActiveFunds(funds) {
     const formattedGainLoss = await formatCurrency(fund.gain_loss);
     
     const desktopRow = `
-      <tr class="border-b border-gray-700" 
+      <tr class="border-b border-gray-200" 
           data-name="${fund.fund_name}" 
           data-symbol="${fund.crypto_symbol}" 
           data-price="${currentPrice}"
@@ -367,25 +367,25 @@ async function renderActiveFunds(funds) {
           <div class="flex items-center gap-3">
             ${iconHtml}
             <div>
-              <div class="font-semibold text-white text-sm">${fund.fund_name}</div>
-              <div class="text-xs text-gray-400">${fund.crypto_symbol}</div>
+              <div class="font-semibold text-gray-900 text-sm">${fund.fund_name}</div>
+              <div class="text-xs text-gray-500">${fund.crypto_symbol}</div>
             </div>
           </div>
         </td>
-        <td class="px-3 py-4 text-sm text-white">${fund.units_held.toFixed(4)}</td>
-        <td class="px-3 py-4 text-sm text-white">${formattedCurrentPrice}</td>
-        <td class="px-3 py-4 text-sm text-white">${formattedTotalInvestment}</td>
-        <td class="px-3 py-4 text-sm text-white">${formattedCurrentValue}</td>
+        <td class="px-3 py-4 text-sm text-gray-900">${fund.units_held.toFixed(4)}</td>
+        <td class="px-3 py-4 text-sm text-gray-900">${formattedCurrentPrice}</td>
+        <td class="px-3 py-4 text-sm text-gray-900">${formattedTotalInvestment}</td>
+        <td class="px-3 py-4 text-sm text-gray-900">${formattedCurrentValue}</td>
         <td class="px-3 py-4 text-sm ${gainLossClass}">${gainLossSign}${formattedGainLoss}</td>
         <td class="px-3 py-4 text-sm text-green-400">${fund.interest_rate}%</td>
         <td class="px-3 py-4">
-          <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Sell</button>
+          <button class="text-[#009296] hover:text-[#007a7e] text-sm font-medium">Sell</button>
         </td>
       </tr>
     `;
 
     const mobileCard = `
-      <div class="bg-gray-700 rounded-lg p-4"
+      <div class="bg-gray-100 rounded-lg p-4"
           data-name="${fund.fund_name}" 
           data-symbol="${fund.crypto_symbol}" 
           data-price="${currentPrice}"
@@ -395,19 +395,19 @@ async function renderActiveFunds(funds) {
           <div class="flex items-center gap-3">
             ${iconHtml}
             <div>
-              <div class="font-semibold text-white text-base">${fund.fund_name}</div>
-              <div class="text-xs text-gray-400">${fund.crypto_symbol}</div>
+              <div class="font-semibold text-gray-900 text-base">${fund.fund_name}</div>
+              <div class="text-xs text-gray-500">${fund.crypto_symbol}</div>
             </div>
           </div>
-          <button class="text-blue-400 hover:text-blue-300 text-sm font-medium flex-shrink-0 ml-4">Sell</button>
+          <button class="text-[#009296] hover:text-[#007a7e] text-sm font-medium flex-shrink-0 ml-4">Sell</button>
         </div>
-        <div class="border-t border-gray-600 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <div><div class="text-xs text-gray-400">Units Held</div><div class="text-sm text-white font-medium">${fund.units_held.toFixed(4)}</div></div>
-          <div><div class="text-xs text-gray-400">Current Price</div><div class="text-sm text-white font-medium">${formattedCurrentPrice}</div></div>
-          <div><div class="text-xs text-gray-400">Investment</div><div class="text-sm text-white font-medium">${formattedTotalInvestment}</div></div>
-          <div><div class="text-xs text-gray-400">Current Value</div><div class="text-sm text-white font-medium">${formattedCurrentValue}</div></div>
-          <div><div class="text-xs text-gray-400">Gain/Loss</div><div class="text-sm ${gainLossClass} font-medium">${gainLossSign}${formattedGainLoss}</div></div>
-          <div><div class="text-xs text-gray-400">Interest Rate</div><div class="text-sm text-green-400 font-medium">${fund.interest_rate}%</div></div>
+        <div class="border-t border-gray-300 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div><div class="text-xs text-gray-500">Units Held</div><div class="text-sm text-gray-900 font-medium">${fund.units_held.toFixed(4)}</div></div>
+          <div><div class="text-xs text-gray-500">Current Price</div><div class="text-sm text-gray-900 font-medium">${formattedCurrentPrice}</div></div>
+          <div><div class="text-xs text-gray-500">Investment</div><div class="text-sm text-gray-900 font-medium">${formattedTotalInvestment}</div></div>
+          <div><div class="text-xs text-gray-500">Current Value</div><div class="text-sm text-gray-900 font-medium">${formattedCurrentValue}</div></div>
+          <div><div class="text-xs text-gray-500">Gain/Loss</div><div class="text-sm ${gainLossClass} font-medium">${gainLossSign}${formattedGainLoss}</div></div>
+          <div><div class="text-xs text-gray-500">Interest Rate</div><div class="text-sm text-green-400 font-medium">${fund.interest_rate}%</div></div>
         </div>
       </div>
     `;
@@ -445,13 +445,13 @@ async function renderTransactionHistory(history) {
         const formattedTotal = await formatCurrency(tx.total_amount);
         
         const row = `
-            <tr class="border-b border-gray-700">
-                <td class="px-3 py-4 text-sm text-white">${new Date(tx.date).toLocaleDateString()}</td>
-                <td class="px-3 py-4 text-sm text-white">${tx.fund_name}</td>
+            <tr class="border-b border-gray-200">
+                <td class="px-3 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString()}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${tx.fund_name}</td>
                 <td class="px-3 py-4 text-sm ${typeClass}">${tx.type}</td>
-                <td class="px-3 py-4 text-sm text-white">${tx.units.toFixed(4)}</td>
-                <td class="px-3 py-4 text-sm text-white">${formattedPrice}</td>
-                <td class="px-3 py-4 text-sm text-white">${formattedTotal}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${tx.units.toFixed(4)}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${formattedPrice}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${formattedTotal}</td>
             </tr>
         `;
         desktopBody.insertAdjacentHTML('beforeend', row);
@@ -471,9 +471,9 @@ function renderSoldHistory(history) {
 
     history.forEach(tx => {
         const row = `
-            <tr class="border-b border-gray-700">
-                <td class="px-3 py-4 text-sm text-white">${tx.fund_name}</td>
-                <td class="px-3 py-4 text-sm text-white">${new Date(tx.date).toLocaleDateString()}</td>
+            <tr class="border-b border-gray-200">
+                <td class="px-3 py-4 text-sm text-gray-900">${tx.fund_name}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString()}</td>
             </tr>
         `;
         desktopBody.insertAdjacentHTML('beforeend', row);
@@ -542,8 +542,8 @@ function setupEventListeners() {
     const tableContainers = document.querySelectorAll('[id$="-table-container"]');
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            tabButtons.forEach(tab => tab.classList.remove('border-blue-400', 'text-blue-400'));
-            button.classList.add('border-blue-400', 'text-blue-400');
+            tabButtons.forEach(tab => tab.classList.remove('border-[#009296]', 'text-[#009296]'));
+            button.classList.add('border-[#009296]', 'text-[#009296]');
             tableContainers.forEach(container => container.classList.add('hidden'));
             const tabId = button.id.replace('tab-', '');
             document.getElementById(`${tabId}-table-container`)?.classList.remove('hidden');
@@ -564,7 +564,7 @@ function setupEventListeners() {
         const buttonText = button.textContent.trim();
         if (buttonText === 'Buy' || buttonText === 'Sell') {
             e.preventDefault();
-            const fundCard = button.closest('.fund-card, .border-b.border-gray-700, .bg-gray-700.rounded-lg');
+            const fundCard = button.closest('.fund-card, .border-b.border-gray-200, .bg-gray-100.rounded-lg');
             if (fundCard) await openTransactionModal(fundCard, buttonText);
         }
     });
@@ -666,7 +666,7 @@ async function openTransactionModal(fundCard, transactionType) {
         // This is for a token the user does NOT hold, from the "Available Tokens" grid.
         // We read from the visible elements, which use the general static_price.
         const nameEl = fundCard.querySelector('h3.font-semibold');
-        const codeEl = fundCard.querySelector('.text-xs.text-gray-400');
+        const codeEl = fundCard.querySelector('.text-xs.text-gray-500');
         const priceEl = fundCard.querySelector('.text-right .text-lg.font-semibold');
         const interestEl = fundCard.querySelector('.text-sm.font-semibold.text-green-400');
         const iconEl = fundCard.querySelector('.w-10.h-10.rounded-full svg, .w-10.h-10.rounded-full .w-6.h-6');
@@ -682,7 +682,7 @@ async function openTransactionModal(fundCard, transactionType) {
     fundCode = fundCode || 'N/A';
     fundPrice = fundPrice || '$0.00';
     fundInterest = fundInterest || '0%';
-    iconSvg = iconSvg || `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+    iconSvg = iconSvg || `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
 
     const modal = document.getElementById('transaction-modal');
     const availableUnits = fundCard.dataset.unitsHeld;
@@ -772,7 +772,7 @@ async function showSuccessModal(type, symbol, units, result) {
     
     if (type === 'buy') {
         document.getElementById('success-title').textContent = 'Purchase Successful!';
-        document.getElementById('success-message').innerHTML = `You have successfully purchased <strong class="text-white">${unitsFormatted}</strong>.`;
+        document.getElementById('success-message').innerHTML = `You have successfully purchased <strong class="text-gray-900">${unitsFormatted}</strong>.`;
         document.getElementById('summary-amount-label').textContent = 'Amount Purchased:';
         document.getElementById('summary-price-label').textContent = 'Price per Token:';
         document.getElementById('summary-cost-label').textContent = 'Total Cost:';
@@ -781,7 +781,7 @@ async function showSuccessModal(type, symbol, units, result) {
         document.getElementById('summary-cost').textContent = formattedFiatSpent;
     } else {
         document.getElementById('success-title').textContent = 'Sale Successful!';
-        document.getElementById('success-message').innerHTML = `You have successfully sold <strong class="text-white">${unitsFormatted}</strong>.`;
+        document.getElementById('success-message').innerHTML = `You have successfully sold <strong class="text-gray-900">${unitsFormatted}</strong>.`;
         document.getElementById('summary-amount-label').textContent = 'Amount Sold:';
         document.getElementById('summary-price-label').textContent = 'Price per Token:';
         document.getElementById('summary-cost-label').textContent = 'Total Received:';

@@ -15,24 +15,24 @@ async function initializePage() {
         if (!plansGrid) return;
         plansGrid.innerHTML = '';
         const skeletonHTML = `
-            <div class="bg-gray-700/50 rounded-xl p-6 border border-gray-700 animate-pulse">
-                <div class="h-6 bg-gray-600 rounded w-3/4 mb-2"></div>
-                <div class="h-4 bg-gray-600 rounded w-1/2 mb-6"></div>
+            <div class="bg-white border border-gray-200 rounded-xl p-6 animate-pulse">
+                <div class="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
                     </div>
                     <div class="flex justify-between">
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
                     </div>
                      <div class="flex justify-between">
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
-                        <div class="h-4 bg-gray-600 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
                     </div>
                 </div>
-                <div class="h-10 bg-gray-600 rounded-lg mt-6"></div>
+                <div class="h-10 bg-gray-200 rounded-lg mt-6"></div>
             </div>
         `;
         for (let i = 0; i < 3; i++) {
@@ -77,8 +77,8 @@ async function initializePage() {
         document.getElementById('deposits-count').textContent = `${savings.length} Active Membership(s)`;
 
         if (savings.length === 0) {
-            const emptyRow = `<tr><td colspan="8" class="text-center py-8 text-gray-400">No active membership plans.</td></tr>`;
-            const emptyCard = `<div class="text-center py-8 text-gray-400">No active membership plans.</div>`;
+            const emptyRow = `<tr><td colspan="8" class="text-center py-8 text-gray-600">No active membership plans.</td></tr>`;
+            const emptyCard = `<div class="text-center py-8 text-gray-600">No active membership plans.</div>`;
             activeTbody.innerHTML = emptyRow;
             activeCards.innerHTML = emptyCard;
             return;
@@ -88,20 +88,20 @@ async function initializePage() {
             const statusBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-900 text-green-300">Active</span>`;
             
             const tableRow = `
-                <tr class="border-b border-gray-700 hover:bg-gray-700/50">
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
                     <td class="px-6 py-4 text-sm">
-                        <div class="font-medium text-white break-words max-w-[200px]">${saving.plan_name}</div>
-                        <div class="text-xs text-gray-400 mt-1">MB-${saving.id.substring(0,8).toUpperCase()}</div>
+                        <div class="font-medium text-gray-900 break-words max-w-[200px]">${saving.plan_name}</div>
+                        <div class="text-xs text-gray-600 mt-1">MB-${saving.id.substring(0,8).toUpperCase()}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.amount, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${await formatCurrency(saving.amount, userCurrency)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-400">${saving.weekly_interest_rate}%</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${saving.duration_months} months</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(saving.start_date)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(saving.end_date)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${saving.duration_months} months</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(saving.start_date)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(saving.end_date)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <div class="flex flex-col gap-1">
-                            <button class="text-blue-400 hover:text-blue-300 text-xs font-medium topup-btn transition-colors" data-membership-id="${saving.id}">
+                            <button class="text-[#009296] hover:text-[#007a7e] text-xs font-medium topup-btn transition-colors" data-membership-id="${saving.id}">
                                 <span class="flex items-center gap-1 pointer-events-none">
                                     <svg class="w-3 h-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                     Top Up
@@ -124,48 +124,48 @@ async function initializePage() {
             const progress = Math.max(0, Math.min(100, (elapsedDuration / totalDuration) * 100));
 
             const card = `
-                <div class="bg-gray-800/80 rounded-xl p-5 border border-gray-700 space-y-4">
+                <div class="bg-white border border-gray-200/80 rounded-xl p-5 border border-gray-200 space-y-4">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h4 class="font-bold text-lg text-white">${saving.plan_name}</h4>
-                            <p class="text-xs text-gray-400">ID: MB-${saving.id.substring(0,8).toUpperCase()}</p>
+                            <h4 class="font-bold text-lg text-gray-900">${saving.plan_name}</h4>
+                            <p class="text-xs text-gray-600">ID: MB-${saving.id.substring(0,8).toUpperCase()}</p>
                         </div>
                         ${statusBadge}
                     </div>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p class="text-gray-400">Investment</p>
-                            <p class="font-semibold text-lg text-white">${await formatCurrency(saving.amount, userCurrency)}</p>
+                            <p class="text-gray-600">Investment</p>
+                            <p class="font-semibold text-lg text-gray-900">${await formatCurrency(saving.amount, userCurrency)}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-gray-400">Weekly Interest</p>
+                            <p class="text-gray-600">Weekly Interest</p>
                             <p class="font-semibold text-lg text-green-400">${saving.weekly_interest_rate}%</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p class="text-gray-400">Duration</p>
-                            <p class="font-semibold text-white">${saving.duration_months} months</p>
+                            <p class="text-gray-600">Duration</p>
+                            <p class="font-semibold text-gray-900">${saving.duration_months} months</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-gray-400">Top-ups</p>
-                            <p class="font-semibold text-white">${await formatCurrency(saving.total_topups || 0, userCurrency)}</p>
+                            <p class="text-gray-600">Top-ups</p>
+                            <p class="font-semibold text-gray-900">${await formatCurrency(saving.total_topups || 0, userCurrency)}</p>
                         </div>
                     </div>
                     <div>
-                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <div class="flex justify-between text-xs text-gray-600 mb-1">
                             <span>${formatDate(saving.start_date)}</span>
                             <span>${formatDate(saving.end_date)}</span>
                         </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="w-full bg-gray-100 rounded-full h-2">
                             <div class="bg-green-500 h-2 rounded-full" style="width: ${progress.toFixed(2)}%"></div>
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button class="flex-1 text-center py-2.5 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/40 font-semibold topup-btn" data-membership-id="${saving.id}">
+                        <button class="flex-1 text-center py-2.5 bg-[#009296] text-white rounded-lg hover:bg-[#007a7e] font-semibold topup-btn" data-membership-id="${saving.id}">
                             Top Up
                         </button>
-                        <button class="flex-1 text-center py-2.5 bg-yellow-600/20 text-yellow-400 rounded-lg hover:bg-yellow-600/40 font-semibold early-closure-btn" data-lock-id="${saving.id}">
+                        <button class="flex-1 text-center py-2.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-semibold early-closure-btn" data-lock-id="${saving.id}">
                             Early Closure
                         </button>
                     </div>
@@ -181,8 +181,8 @@ async function initializePage() {
         historicalCards.innerHTML = '';
         
         if (savings.length === 0) {
-            const emptyRow = `<tr><td colspan="5" class="text-center py-8 text-gray-400">No historical memberships.</td></tr>`;
-            const emptyCard = `<div class="text-center py-8 text-gray-400">No historical memberships.</div>`;
+            const emptyRow = `<tr><td colspan="5" class="text-center py-8 text-gray-600">No historical memberships.</td></tr>`;
+            const emptyCard = `<div class="text-center py-8 text-gray-600">No historical memberships.</div>`;
             historicalTbody.innerHTML = emptyRow;
             historicalCards.innerHTML = emptyCard;
             return;
@@ -194,26 +194,26 @@ async function initializePage() {
                 closed_early: 'bg-red-900 text-red-300',
                 completed: 'bg-blue-900 text-blue-300'
             };
-            const statusBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full ${statusColors[saving.status] || 'bg-gray-700'}">${saving.status.replace('_', ' ')}</span>`;
+            const statusBadge = `<span class="px-2 py-1 text-xs font-medium rounded-full ${statusColors[saving.status] || 'bg-gray-100'}">${saving.status.replace('_', ' ')}</span>`;
 
             const tableRow = `
-                 <tr class="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">MB-${saving.id.substring(0,8).toUpperCase()}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.amount, userCurrency)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(saving.end_date)}</td>
+                 <tr class="border-b border-gray-200/50 hover:bg-gray-100 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">MB-${saving.id.substring(0,8).toUpperCase()}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${await formatCurrency(saving.amount, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(saving.end_date)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">${statusBadge}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</td>
                 </tr>`;
             
             const card = `
-                <div class="bg-gray-700/50 rounded-lg p-4 space-y-3">
+                <div class="bg-gray-100/50 rounded-lg p-4 space-y-3">
                      <div class="flex justify-between items-center">
-                        <span class="font-bold text-white">MB-${saving.id.substring(0,8).toUpperCase()}</span>
+                        <span class="font-bold text-gray-900">MB-${saving.id.substring(0,8).toUpperCase()}</span>
                         ${statusBadge}
                     </div>
-                    <div class="flex justify-between"><span class="text-gray-400">Investment:</span> <span class="text-white">${await formatCurrency(saving.amount, userCurrency)}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Concluded:</span> <span class="text-gray-300">${formatDate(saving.end_date)}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Final Payout:</span> <span class="text-white font-bold">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Investment:</span> <span class="text-gray-900">${await formatCurrency(saving.amount, userCurrency)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Concluded:</span> <span class="text-gray-500">${formatDate(saving.end_date)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Final Payout:</span> <span class="text-gray-900 font-bold">${await formatCurrency(saving.final_amount_to_pay, userCurrency)}</span></div>
                 </div>
             `;
             
@@ -226,24 +226,24 @@ async function initializePage() {
         if (!plansGrid) return;
         plansGrid.innerHTML = '';
         if (!plans || plans.length === 0) {
-            plansGrid.innerHTML = `<p class="text-gray-400 col-span-full text-center">No membership plans are currently available.</p>`;
+            plansGrid.innerHTML = `<p class="text-gray-600 col-span-full text-center">No membership plans are currently available.</p>`;
             return;
         }
         for (const plan of plans) {
             const card = document.createElement('div');
-            card.className = 'bg-gray-800/80 rounded-xl p-6 flex flex-col border border-gray-700 hover:border-blue-500 transition-all duration-300';
+            card.className = 'bg-white border border-gray-200 rounded-xl p-6 flex flex-col hover:border-[#009296] transition-all duration-300';
             const maxAmountText = plan.max_amount ? await formatCurrency(plan.max_amount, userCurrency) : 'No Limit';
             card.innerHTML = `
                 <div class="flex-grow">
-                    <h3 class="text-xl font-bold text-white">${plan.plan_name}</h3>
-                    <p class="text-green-400 font-semibold mb-4">${plan.weekly_interest_rate}% <span class="text-sm font-normal text-gray-400">weekly interest</span></p>
+                    <h3 class="text-xl font-bold text-gray-900">${plan.plan_name}</h3>
+                    <p class="text-green-400 font-semibold mb-4">${plan.weekly_interest_rate}% <span class="text-sm font-normal text-gray-600">weekly interest</span></p>
                     <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-gray-400">Duration:</span><span class="font-medium text-white">${plan.min_months}-${plan.max_months} months</span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Min. Investment:</span><span class="font-medium text-white">${await formatCurrency(plan.min_amount, userCurrency)}</span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Max. Investment:</span><span class="font-medium text-white">${maxAmountText}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Duration:</span><span class="font-medium text-gray-900">${plan.min_months}-${plan.max_months} months</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Min. Investment:</span><span class="font-medium text-gray-900">${await formatCurrency(plan.min_amount, userCurrency)}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Max. Investment:</span><span class="font-medium text-gray-900">${maxAmountText}</span></div>
                     </div>
                 </div>
-                <button class="mt-6 w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold select-plan-btn" data-plan-id="${plan.id}">Select Plan</button>
+                <button class="mt-6 w-full bg-[#009296] text-white py-2.5 rounded-lg hover:bg-[#007a7e] transition-colors font-semibold select-plan-btn" data-plan-id="${plan.id}">Select Plan</button>
             `;
             plansGrid.appendChild(card);
         }
