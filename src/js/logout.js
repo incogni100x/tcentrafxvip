@@ -5,7 +5,7 @@ export function initializeLogout(buttonId) {
   if (button) {
     button.addEventListener('click', async () => {
       await signOut();
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     });
   }
 } 

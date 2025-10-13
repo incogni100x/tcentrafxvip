@@ -8,7 +8,7 @@ async function updateHeaderUI() {
     
     if (!user) {
         const path = window.location.pathname.split('/').pop();
-        if (path !== '' && path !== 'index.html' && path !== 'register.html' && path !== 'login.html' && path !== 'forgot-password.html') {
+        if (path !== '' && path !== 'index' && path !== 'register' && path !== 'login' && path !== 'forgot-password') {
             window.location.href = '/';
         }
         return;

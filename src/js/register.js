@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateStep(5);
       setTimeout(() => {
-        window.location.href = '/dashboard.html';
+        window.location.href = '/dashboard';
       }, 3000);
     } catch (error) {
       Toastify({ text: `Error: ${error.message}`, className: "toast-error" }).showToast();

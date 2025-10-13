@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) throw error;
       if (!session) throw new Error("Couldn't verify OTP. Please try again.");
 
-      window.location.href = '/dashboard.html';
+      window.location.href = '/dashboard';
     } catch (error) {
       Toastify({ text: error.message, className: 'toast-error' }).showToast();
     } finally {

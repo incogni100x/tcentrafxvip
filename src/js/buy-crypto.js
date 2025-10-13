@@ -484,7 +484,7 @@ function renderSoldHistory(history) {
 async function initializePage() {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
       return false;
     }
     user = currentUser;

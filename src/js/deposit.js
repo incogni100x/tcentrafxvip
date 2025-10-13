@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function initializePage() {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      window.location.href = '/login.html';
+      window.location.href = '/login';
       return;
     }
     user = currentUser;
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const goToDashboardBtn = document.getElementById('go-to-dashboard');
     goToDashboardBtn.addEventListener('click', () => {
-        window.location.href = '/dashboard.html';
+        window.location.href = '/dashboard';
     });
   }
 

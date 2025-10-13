@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       Toastify({ text: 'Password has been reset successfully! Redirecting to login...', className: 'toast-success' }).showToast();
       setTimeout(() => {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
       }, 3000);
     }
     toggleButtonLoading(resetSubmitBtn, false);

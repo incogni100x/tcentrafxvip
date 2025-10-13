@@ -61,7 +61,7 @@ async function fetchUserProfile() {
       style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" }
     }).showToast();
     // Redirect to login page after a short delay
-    setTimeout(() => window.location.href = '/login.html', 3000);
+    setTimeout(() => window.location.href = '/login', 3000);
     return;
   }
 
