@@ -43,7 +43,7 @@ export const cryptoTokens = [
   { id: 42, symbol: 'HNT', name: 'Helium' },
   { id: 43, symbol: 'ENJ', name: 'Enjin' },
   { id: 44, symbol: 'LEO', name: 'UNUS SED LEO' },
-  { id: 45, symbol: 'AIOZ', name: 'AIOZ Network' },
+  { id: 45, symbol: '4WMM', name: '4-Way Mirror Money' },
   { id: 46, symbol: 'APE', name: 'ApeCoin' },
   { id: 47, symbol: 'JST', name: 'JUST' },
   { id: 48, symbol: 'KAVA', name: 'Kava' },
@@ -59,4 +59,5 @@ export const cryptoTokens = [
   { id: 58, symbol: 'AR', name: 'Arweave' },
   { id: 59, symbol: 'OM', name: 'Mantra' },
   { id: 60, symbol: 'ICP', name: 'Internet Computer' },
+
 ]; 
