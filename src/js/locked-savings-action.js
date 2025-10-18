@@ -157,11 +157,13 @@ async function handleFormSubmit(event) {
         }
 
         const newMembership = rpcResponse.data;
+        const maturityAmount = rpcResponse.maturity_amount || newMembership.amount; // Fallback to principal if maturity not calculated
+        
         document.getElementById('fd-number').textContent = `MB-${newMembership.id.substring(0, 8).toUpperCase()}`;
         document.getElementById('fd-principal').textContent = await formatCurrency(newMembership.amount);
-        document.getElementById('fd-rate').textContent = `${plan.weekly_interest_rate}% weekly`;
+        document.getElementById('fd-rate').textContent = `${rpcResponse.weekly_interest_rate || plan.weekly_interest_rate}% weekly`;
         document.getElementById('fd-maturity').textContent = new Date(newMembership.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        document.getElementById('fd-maturity-amount').textContent = await formatCurrency(newMembership.amount);
+        document.getElementById('fd-maturity-amount').textContent = await formatCurrency(maturityAmount);
         successModal.classList.remove('hidden');
         successModal.classList.add('flex');
 

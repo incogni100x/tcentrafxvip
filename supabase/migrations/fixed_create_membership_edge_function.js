@@ -1,4 +1,4 @@
-// Fixed create membership edge function - removes topup_mode parameter
+// Fixed create membership edge function - removes topup_mode parameter and always returns 200
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -19,38 +19,54 @@ Deno.serve(async (req) => {
     // Validate input
     if (!plan_id || typeof plan_id !== 'number') {
       return new Response(JSON.stringify({
+        success: false,
         message: 'Valid plan_id is required.'
       }), {
-        status: 400,
-        headers: corsHeaders
+        status: 200, // Always return 200 to allow frontend to parse response
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       });
     }
 
     if (!amount || typeof amount !== 'number' || amount <= 0) {
       return new Response(JSON.stringify({
+        success: false,
         message: 'Valid positive amount is required.'
       }), {
-        status: 400,
-        headers: corsHeaders
+        status: 200, // Always return 200 to allow frontend to parse response
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       });
     }
 
     if (!months || typeof months !== 'number' || months <= 0) {
       return new Response(JSON.stringify({
+        success: false,
         message: 'Valid duration (months) is required.'
       }), {
-        status: 400,
-        headers: corsHeaders
+        status: 200, // Always return 200 to allow frontend to parse response
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       });
     }
 
-    const supabase = createClient(Deno.env.get('SUPABASE_URL'), Deno.env.get('SUPABASE_ANON_KEY'), {
-      global: {
-        headers: {
-          Authorization: req.headers.get('Authorization')
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL'),
+      Deno.env.get('SUPABASE_ANON_KEY'),
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get('Authorization')
+          }
         }
       }
-    });
+    );
 
     const { data, error } = await supabase.rpc('create_user_membership_transaction', {
       plan_id_arg: plan_id,
@@ -61,16 +77,21 @@ Deno.serve(async (req) => {
     if (error) {
       console.error('RPC call failed:', error);
       return new Response(JSON.stringify({
-        message: 'Failed to execute transaction.'
+        success: false,
+        message: 'Failed to execute transaction.',
+        error: error.message
       }), {
-        status: 500,
-        headers: corsHeaders
+        status: 200, // Always return 200 to allow frontend to parse response
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       });
     }
 
-    const responseData = data;
-    return new Response(JSON.stringify(responseData), {
-      status: 200, // Always return 200, let frontend handle success/failure
+    // Return the RPC response data (which includes success/failure status)
+    return new Response(JSON.stringify(data), {
+      status: 200, // Always return 200 to allow frontend to parse response
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json'
@@ -80,10 +101,15 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error('Unexpected error:', err.message);
     return new Response(JSON.stringify({
-      message: 'Internal server error.'
+      success: false,
+      message: 'Internal server error.',
+      error: err.message
     }), {
-      status: 500,
-      headers: corsHeaders
+      status: 200, // Always return 200 to allow frontend to parse response
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
     });
   }
 });
