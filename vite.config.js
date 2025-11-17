@@ -16,6 +16,7 @@ export default defineConfig({
         login: resolve(__dirname, 'login.html'),
         register: resolve(__dirname, 'register.html'),
         forgotPassword: resolve(__dirname, 'forgot-password.html'),
+        advancedVerification: resolve(__dirname, 'advanced-verification.html'),
       },
     },
   },
