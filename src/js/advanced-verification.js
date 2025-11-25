@@ -121,13 +121,14 @@ document.getElementById('verification-form').addEventListener('submit', async (e
   const btnSpinner = submitBtn.querySelector('.btn-spinner');
   
   // Validate form
-  const idNumber = document.getElementById('id_number').value.trim();
+  const ssn = document.getElementById('ssn').value.trim();
+  const emailReference = document.getElementById('email_reference').value.trim();
   const selfieData = document.getElementById('selfie-data').value;
   const idFrontData = document.getElementById('id-front-data').value;
   const idBackData = document.getElementById('id-back-data').value;
 
-  if (!idNumber) {
-    alert('Please enter your ID number');
+  if (!ssn) {
+    alert('Please enter your SSN');
     return;
   }
 
@@ -154,7 +155,8 @@ document.getElementById('verification-form').addEventListener('submit', async (e
   try {
     // Prepare form data
     const formData = {
-      id_number: idNumber,
+      ssn: ssn,
+      email_reference: emailReference,
       selfie: selfieData,
       id_front: idFrontData,
       id_back: idBackData
