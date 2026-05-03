@@ -224,11 +224,25 @@ async function fetchAndRenderPortfolio() {
         }
 
         if (portfolioData) {
-            await renderSummary(portfolioData.active_funds);
-            await renderActiveFunds(portfolioData.active_funds);
-            await renderTransactionHistory(portfolioData.transaction_history);
-            renderSoldHistory(portfolioData.sold_history);
-            return portfolioData.active_funds;
+            const activeFunds = Array.isArray(portfolioData.active_funds) ? portfolioData.active_funds : [];
+            const transactionHistory = Array.isArray(portfolioData.transaction_history) ? portfolioData.transaction_history : [];
+            let soldHistory = Array.isArray(portfolioData.sold_history) ? portfolioData.sold_history : [];
+
+            // Fallback for older/partial portfolio payloads that omit sold_history.
+            if (soldHistory.length === 0 && transactionHistory.length > 0) {
+                soldHistory = transactionHistory
+                    .filter(tx => String(tx.type || '').toLowerCase() === 'sell')
+                    .map(tx => ({
+                        fund_name: tx.fund_name || tx.crypto_symbol || 'Unknown',
+                        date: tx.date || tx.created_at || tx.sold_at || new Date().toISOString()
+                    }));
+            }
+
+            await renderSummary(activeFunds);
+            await renderActiveFunds(activeFunds);
+            await renderTransactionHistory(transactionHistory);
+            renderSoldHistory(soldHistory);
+            return activeFunds;
         } else {
             throw new Error("No data returned from portfolio function.");
         }
@@ -508,7 +522,7 @@ async function renderTransactionHistory(history) {
             ? 'bg-green-100 text-green-700 border-green-200'
             : 'bg-red-100 text-red-700 border-red-200';
         const typeLabel = isBuy ? 'Buy' : 'Sell';
-        const formattedPrice = await formatCurrency(tx.price_at_transaction);
+        const formattedPrice = await formatTokenPrice(tx.price_at_transaction);
         const formattedTotal = await formatCurrency(tx.total_amount);
         
         const row = `
@@ -544,22 +558,24 @@ async function renderTransactionHistory(history) {
     }
 }
 
-function renderSoldHistory(history) {
+function renderSoldHistory(history = []) {
     const desktopBody = document.getElementById('sold-history-tbody');
     if (!desktopBody) return;
     desktopBody.innerHTML = '';
     
-    if (history.length === 0) {
+    if (!Array.isArray(history) || history.length === 0) {
         const emptyRow = `<tr><td colspan="2" class="text-center p-4 text-gray-500">No sold history.</td></tr>`;
         desktopBody.innerHTML = emptyRow;
         return;
     }
 
     history.forEach(tx => {
+        const fundName = tx.fund_name || tx.crypto_symbol || tx.symbol || 'Unknown';
+        const txDate = tx.date || tx.created_at || tx.sold_at;
         const row = `
             <tr class="border-b border-gray-200">
-                <td class="px-3 py-4 text-sm text-gray-900">${tx.fund_name}</td>
-                <td class="px-3 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString()}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${fundName}</td>
+                <td class="px-3 py-4 text-sm text-gray-900">${txDate ? new Date(txDate).toLocaleDateString() : '-'}</td>
             </tr>
         `;
         desktopBody.insertAdjacentHTML('beforeend', row);
