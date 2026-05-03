@@ -247,6 +247,7 @@ async function fetchAndRenderPortfolio() {
 // formatCurrency is now imported from session.js
 
 async function renderSummary(activeFunds) {
+  const activeFundsCount = activeFunds.filter(fund => (fund.units_held || 0) > 0).length;
   const totalInvestment = activeFunds.reduce((acc, fund) => acc + (fund.total_investment || 0), 0);
   const currentValue = activeFunds.reduce((acc, fund) => acc + (fund.current_market_value || 0), 0);
   const absoluteGain = currentValue - totalInvestment;
@@ -255,6 +256,7 @@ async function renderSummary(activeFunds) {
   const investmentContainer = document.getElementById('summary-total-investment-container');
   const valueContainer = document.getElementById('summary-current-value-container');
   const fundsContainer = document.getElementById('summary-active-funds-container');
+  const portfolioActiveFundsCountEl = document.getElementById('portfolio-active-funds-count');
 
   if (investmentContainer) {
     const formattedInvestment = await formatCurrency(totalInvestment);
@@ -297,11 +299,15 @@ async function renderSummary(activeFunds) {
         </div>
         <div class="flex-1">
           <p class="text-sm text-gray-500">Active Funds</p>
-          <p class="text-2xl font-bold text-gray-900">${activeFunds.length}</p>
+          <p class="text-2xl font-bold text-gray-900">${activeFundsCount}</p>
         </div>
       </div>
       <p class="text-xs text-gray-500">View details below</p>
     `;
+  }
+
+  if (portfolioActiveFundsCountEl) {
+    portfolioActiveFundsCountEl.textContent = `${activeFundsCount} active fund${activeFundsCount === 1 ? '' : 's'}`;
   }
 }
 
@@ -495,7 +501,13 @@ async function renderTransactionHistory(history) {
     
     // Process transactions with async currency formatting
     for (const tx of history) {
-        const typeClass = tx.type === 'Buy' ? 'text-green-400' : 'text-red-400';
+        const normalizedType = String(tx.type || '').toLowerCase();
+        const isBuy = normalizedType === 'buy';
+        const typeClass = isBuy ? 'text-green-600' : 'text-red-500';
+        const typeBadgeClass = isBuy
+            ? 'bg-green-100 text-green-700 border-green-200'
+            : 'bg-red-100 text-red-700 border-red-200';
+        const typeLabel = isBuy ? 'Buy' : 'Sell';
         const formattedPrice = await formatCurrency(tx.price_at_transaction);
         const formattedTotal = await formatCurrency(tx.total_amount);
         
@@ -503,13 +515,32 @@ async function renderTransactionHistory(history) {
             <tr class="border-b border-gray-200">
                 <td class="px-3 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString()}</td>
                 <td class="px-3 py-4 text-sm text-gray-900">${tx.fund_name}</td>
-                <td class="px-3 py-4 text-sm ${typeClass}">${tx.type}</td>
+                <td class="px-3 py-4 text-sm ${typeClass}">${typeLabel}</td>
                 <td class="px-3 py-4 text-sm text-gray-900">${tx.units.toFixed(4)}</td>
                 <td class="px-3 py-4 text-sm text-gray-900">${formattedPrice}</td>
                 <td class="px-3 py-4 text-sm text-gray-900">${formattedTotal}</td>
             </tr>
         `;
         desktopBody.insertAdjacentHTML('beforeend', row);
+
+        const mobileCard = `
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <div class="font-semibold text-gray-900 text-base">${tx.fund_name}</div>
+                        <div class="text-xs text-gray-500">${new Date(tx.date).toLocaleDateString()}</div>
+                    </div>
+                    <div class="text-xs font-semibold px-2.5 py-1 rounded-full border ${typeBadgeClass}">${typeLabel}</div>
+                </div>
+                <div class="border-t border-gray-300 pt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div><div class="text-xs text-gray-500">Units</div><div class="text-sm text-gray-900 font-medium">${tx.units.toFixed(4)}</div></div>
+                    <div><div class="text-xs text-gray-500">Price</div><div class="text-sm text-gray-900 font-medium">${formattedPrice}</div></div>
+                    <div><div class="text-xs text-gray-500">Total</div><div class="text-sm text-gray-900 font-medium">${formattedTotal}</div></div>
+                    <div><div class="text-xs text-gray-500">Type</div><div class="text-sm ${typeClass} font-medium">${typeLabel}</div></div>
+                </div>
+            </div>
+        `;
+        mobileContainer.insertAdjacentHTML('beforeend', mobileCard);
     }
 }
 
