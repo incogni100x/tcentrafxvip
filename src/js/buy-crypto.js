@@ -6,6 +6,37 @@ import Toastify from 'toastify-js';
 
 // --- GLOBAL STATE ---
 let user = null;
+const tokenPriceMap = new Map();
+
+async function formatTokenPrice(price) {
+    const symbol = await getCurrencySymbol();
+    const priceString = String(price ?? 0);
+
+    // Fallback for scientific notation values.
+    if (/[eE]/.test(priceString)) {
+        const numericValue = Number(priceString) || 0;
+        const formattedScientific = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 20,
+        }).format(numericValue);
+        return `${symbol}${formattedScientific}`;
+    }
+
+    const [rawIntegerPart, rawDecimalPart] = priceString.split('.');
+    const integerPart = Number(rawIntegerPart || 0);
+    const formattedIntegerPart = new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0,
+    }).format(integerPart);
+
+    if (typeof rawDecimalPart === 'string' && rawDecimalPart.length > 0) {
+        const significantDecimalPart = rawDecimalPart.replace(/0+$/, '');
+        if (significantDecimalPart.length > 0) {
+            return `${symbol}${formattedIntegerPart}.${significantDecimalPart}`;
+        }
+    }
+
+    return `${symbol}${formattedIntegerPart}`;
+}
 
 // --- AVAILABLE CRYPTOS LOGIC (from buy-crypto-view.js) ---
 function renderCryptoCardSkeletons() {
@@ -60,6 +91,11 @@ async function fetchAndRenderAvailableCryptos(activeFunds = []) {
             return;
         }
 
+        tokenPriceMap.clear();
+        data.forEach(tokenData => {
+            tokenPriceMap.set(tokenData.crypto_symbol, Number(tokenData.static_price) || 0);
+        });
+
         availableCryptosContainer.innerHTML = ''; // Clear skeletons
 
         const cardPromises = cryptoTokens.map(token => {
@@ -111,10 +147,16 @@ async function createCryptoCard(token, backendData, userFund = null) {
 
     const card = document.createElement('div');
     card.className = 'bg-white border border-gray-200 rounded-lg p-4 fund-card';
+    card.dataset.name = name;
+    card.dataset.symbol = symbol;
+    card.dataset.price = static_price;
+    card.dataset.interest = interest_rate;
 
     if (hasFund) {
         let currentPrice = userFund.current_price;
-        if (typeof currentPrice === 'undefined' && userFund.units_held > 0) {
+        if ((typeof currentPrice === 'undefined' || currentPrice === null) && tokenPriceMap.has(userFund.crypto_symbol)) {
+          currentPrice = tokenPriceMap.get(userFund.crypto_symbol);
+        } else if ((typeof currentPrice === 'undefined' || currentPrice === null) && userFund.units_held > 0) {
           currentPrice = userFund.current_market_value / userFund.units_held;
         }
         card.dataset.name = userFund.fund_name;
@@ -125,7 +167,7 @@ async function createCryptoCard(token, backendData, userFund = null) {
     }
     
     // Format price with session currency
-    const formattedPrice = await formatCurrency(static_price);
+    const formattedPrice = await formatTokenPrice(static_price);
     
     card.innerHTML = `
         <div class="flex items-center justify-between mb-3">
@@ -164,6 +206,17 @@ async function createCryptoCard(token, backendData, userFund = null) {
 async function fetchAndRenderPortfolio() {
     renderActiveFundsSkeleton();
     try {
+        // Ensure we have authoritative token prices for current-price fallback.
+        const { data: tokenRows } = await supabase
+            .from('crypto_tokens')
+            .select('crypto_symbol, static_price');
+        if (Array.isArray(tokenRows)) {
+            tokenPriceMap.clear();
+            tokenRows.forEach(tokenData => {
+                tokenPriceMap.set(tokenData.crypto_symbol, Number(tokenData.static_price) || 0);
+            });
+        }
+
         const { data: portfolioData, error } = await supabase.functions.invoke('buy-crypto-portfolio');
         
         if (error) {
@@ -346,12 +399,14 @@ async function renderActiveFunds(funds) {
     const gainLossSign = fund.gain_loss >= 0 ? '+' : '';
     
     let currentPrice = fund.current_price;
-    if (typeof currentPrice === 'undefined' && fund.units_held > 0) {
+    if ((typeof currentPrice === 'undefined' || currentPrice === null) && tokenPriceMap.has(fund.crypto_symbol)) {
+      currentPrice = tokenPriceMap.get(fund.crypto_symbol);
+    } else if ((typeof currentPrice === 'undefined' || currentPrice === null) && fund.units_held > 0) {
       currentPrice = fund.current_market_value / fund.units_held;
     }
     
     // Format all currency values
-    const formattedCurrentPrice = await formatCurrency(currentPrice);
+    const formattedCurrentPrice = await formatTokenPrice(currentPrice);
     const formattedTotalInvestment = await formatCurrency(fund.total_investment);
     const formattedCurrentValue = await formatCurrency(fund.current_market_value);
     const formattedGainLoss = await formatCurrency(fund.gain_loss);
@@ -612,7 +667,7 @@ function setupEventListeners() {
     if (maxAmountBtn) {
         maxAmountBtn.addEventListener('click', async () => {
             const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
-            const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
+            const price = parseFloat(modal.dataset.priceRaw) || 0;
             if (maxUnits > 0 && price > 0) {
                 const maxAmount = maxUnits * price;
                 amountInput.value = maxAmount.toFixed(2);
@@ -685,6 +740,12 @@ async function openTransactionModal(fundCard, transactionType) {
     iconSvg = iconSvg || `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
 
     const modal = document.getElementById('transaction-modal');
+    let rawPrice = parseFloat(fundCard.dataset.price);
+    if (isNaN(rawPrice)) {
+        rawPrice = parseFloat((fundPrice || '').replace(/[^0-9.]/g, '')) || 0;
+    }
+    modal.dataset.priceRaw = rawPrice;
+    const formattedModalPrice = await formatTokenPrice(rawPrice);
     const availableUnits = fundCard.dataset.unitsHeld;
     const availableUnitsSpan = document.getElementById('modal-available-units');
 
@@ -703,7 +764,7 @@ async function openTransactionModal(fundCard, transactionType) {
 
     document.getElementById('fund-name').textContent = fundName;
     document.getElementById('fund-code').textContent = fundCode;
-    document.getElementById('fund-price').textContent = fundPrice;
+    document.getElementById('fund-price').textContent = formattedModalPrice;
     document.getElementById('fund-interest').textContent = fundInterest;
     document.getElementById('units-input').placeholder = `Enter ${fundCode} units`;
     document.getElementById('modal-fund-icon').innerHTML = iconSvg;
@@ -727,7 +788,8 @@ async function handleTransactionSubmit(e) {
     processingOverlay.classList.remove('hidden');
 
     const cryptoSymbol = document.getElementById('fund-code').textContent.trim();
-    const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
+    const modal = document.getElementById('transaction-modal');
+    const price = parseFloat(modal.dataset.priceRaw) || 0;
     const investmentType = document.querySelector('input[name="investment-type"]:checked').value;
     
     let units;
@@ -736,6 +798,13 @@ async function handleTransactionSubmit(e) {
         units = (price > 0) ? amount / price : 0;
     } else {
         units = parseFloat(document.getElementById('units-input').value) || 0;
+    }
+
+    if (transactionType === 'sell') {
+        const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
+        if (maxUnits > 0 && units > maxUnits) {
+            units = maxUnits;
+        }
     }
 
     if (!cryptoSymbol || cryptoSymbol === 'N/A' || !units || units <= 0) {
@@ -765,9 +834,9 @@ async function showSuccessModal(type, symbol, units, result) {
     const unitsFormatted = `${units.toFixed(4)} ${symbol}`;
     
     // Format currency values
-    const formattedPurchasePrice = await formatCurrency(result.purchase_price);
+    const formattedPurchasePrice = await formatTokenPrice(result.purchase_price);
     const formattedFiatSpent = await formatCurrency(result.fiat_spent);
-    const formattedSellPrice = await formatCurrency(result.sell_price);
+    const formattedSellPrice = await formatTokenPrice(result.sell_price);
     const formattedFiatReceived = await formatCurrency(result.fiat_received);
     
     if (type === 'buy') {
@@ -794,11 +863,11 @@ async function showSuccessModal(type, symbol, units, result) {
 
 
 async function updateCalculations() {
-    const price = parseFloat(document.getElementById('fund-price').textContent.replace(/[^0-9.]/g, '')) || 0;
+    const modal = document.getElementById('transaction-modal');
+    const price = parseFloat(modal.dataset.priceRaw) || 0;
     const cryptoSymbol = document.getElementById('fund-code').textContent.trim();
     const investmentType = document.querySelector('input[name="investment-type"]:checked').value;
     const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
-    const modal = document.getElementById('transaction-modal');
     const maxUnits = parseFloat(modal.dataset.maxUnits) || 0;
     
     let units = 0, amount = 0;
